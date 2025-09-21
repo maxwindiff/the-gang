@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Dict, List, Optional
 import logging
+from .poker_engine import PokerGame
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ class GameRoom:
         self.players: List[str] = []
         self.state = RoomState.WAITING
         self.game_state = {}
+        self.poker_game: Optional[PokerGame] = None
 
     def add_player(self, player_name: str) -> bool:
         if self.state != RoomState.WAITING:
@@ -38,6 +40,7 @@ class GameRoom:
     def start_game(self) -> bool:
         if self.can_start_game():
             self.state = RoomState.STARTED
+            self.poker_game = PokerGame(self.players.copy())
             self.game_state = {}
             logger.info(f"Game started in room {self.name}")
             return True
@@ -53,19 +56,26 @@ class GameRoom:
     def restart_game(self) -> bool:
         if self.state == RoomState.INTERMISSION and 3 <= len(self.players) <= 6:
             self.state = RoomState.STARTED
+            self.poker_game = PokerGame(self.players.copy())
             self.game_state = {}
             logger.info(f"Game restarted in room {self.name}")
             return True
         return False
 
-    def to_dict(self) -> Dict:
-        return {
+    def to_dict(self, player_perspective: Optional[str] = None) -> Dict:
+        base_data = {
             'name': self.name,
             'players': self.players,
             'state': self.state.value,
             'player_count': len(self.players),
             'can_start': self.can_start_game()
         }
+        
+        # Add poker game data if game is active
+        if self.poker_game and self.state == RoomState.STARTED:
+            base_data['poker_game'] = self.poker_game.to_dict(player_perspective)
+        
+        return base_data
 
 class RoomManager:
     def __init__(self):

@@ -35,6 +35,9 @@ function Game() {
             case 'game_started':
               setRoomData(data.room_data);
               break;
+            case 'game_update':
+              setRoomData(data.room_data);
+              break;
             case 'game_ended':
               setRoomData(data.room_data);
               break;
@@ -106,6 +109,56 @@ function Game() {
 
   const handleBackToHome = () => {
     navigate('/');
+  };
+
+  const handleTakeChipFromPublic = (chipNumber) => {
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ 
+          type: 'take_chip_public', 
+          chip_number: chipNumber 
+        }));
+      }
+    } catch (error) {
+      console.log('Error taking chip from public:', error);
+      setError('Failed to take chip. Please try again.');
+    }
+  };
+
+  const handleTakeChipFromPlayer = (targetPlayer) => {
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ 
+          type: 'take_chip_player', 
+          target_player: targetPlayer 
+        }));
+      }
+    } catch (error) {
+      console.log('Error taking chip from player:', error);
+      setError('Failed to take chip. Please try again.');
+    }
+  };
+
+  const handleReturnChip = () => {
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: 'return_chip' }));
+      }
+    } catch (error) {
+      console.log('Error returning chip:', error);
+      setError('Failed to return chip. Please try again.');
+    }
+  };
+
+  const handleAdvanceRound = () => {
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: 'advance_round' }));
+      }
+    } catch (error) {
+      console.log('Error advancing round:', error);
+      setError('Failed to advance round. Please try again.');
+    }
   };
 
   const getConnectionStatusColor = () => {
@@ -234,58 +287,249 @@ function Game() {
         </div>
       )}
 
-      {roomData ? (
+      {roomData && roomData.poker_game ? (
         <div>
-          <h2>Players in Game</h2>
-          <ul style={{ 
-            listStyle: 'none', 
-            padding: 0,
-            marginBottom: '2rem'
-          }}>
-            {roomData.players.map((player, index) => (
-              <li key={index} style={{ 
-                padding: '0.5rem',
-                margin: '0.25rem 0',
-                backgroundColor: player === playerName ? '#e7f3ff' : '#f8f9fa',
-                border: '1px solid #dee2e6',
-                borderRadius: '4px'
-              }}>
-                {player} {player === playerName && '(You)'}
-              </li>
-            ))}
-          </ul>
-
+          {/* Round Information */}
           <div style={{ 
             textAlign: 'center',
-            padding: '3rem',
+            marginBottom: '2rem',
+            padding: '1rem',
             backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            marginBottom: '2rem'
+            borderRadius: '8px'
           }}>
-            <h2>🃏 Game Area</h2>
-            <p style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>
-              Game logic will be implemented here in the future.
-            </p>
-            <p style={{ color: '#666' }}>
-              This is a placeholder for the actual poker game interface.
-            </p>
+            <h2>Round: {roomData.poker_game.round.charAt(0).toUpperCase() + roomData.poker_game.round.slice(1)}</h2>
+            <p>Current chip color: <span style={{ 
+              color: roomData.poker_game.current_chip_color === 'white' ? '#666' :
+                     roomData.poker_game.current_chip_color === 'yellow' ? '#ffc107' :
+                     roomData.poker_game.current_chip_color === 'orange' ? '#fd7e14' :
+                     roomData.poker_game.current_chip_color === 'red' ? '#dc3545' : '#666',
+              fontWeight: 'bold'
+            }}>{roomData.poker_game.current_chip_color}</span></p>
           </div>
 
-          <div style={{ textAlign: 'center' }}>
-            <button
-              onClick={handleEndGame}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              End Game (Demo)
-            </button>
+          {/* Community Cards */}
+          {roomData.poker_game.community_cards.length > 0 && (
+            <div style={{ 
+              textAlign: 'center',
+              marginBottom: '2rem',
+              padding: '1rem',
+              backgroundColor: '#e8f5e8',
+              borderRadius: '8px'
+            }}>
+              <h3>Community Cards</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {roomData.poker_game.community_cards.map((card, index) => (
+                  <div key={index} style={{
+                    padding: '0.5rem',
+                    backgroundColor: 'white',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    minWidth: '40px',
+                    textAlign: 'center'
+                  }}>
+                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pocket Cards */}
+          {roomData.poker_game.pocket_cards.length > 0 && (
+            <div style={{ 
+              textAlign: 'center',
+              marginBottom: '2rem',
+              padding: '1rem',
+              backgroundColor: '#fff3cd',
+              borderRadius: '8px'
+            }}>
+              <h3>Your Pocket Cards</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                {roomData.poker_game.pocket_cards.map((card, index) => (
+                  <div key={index} style={{
+                    padding: '0.5rem',
+                    backgroundColor: 'white',
+                    border: '2px solid #ffc107',
+                    borderRadius: '4px',
+                    minWidth: '40px',
+                    textAlign: 'center'
+                  }}>
+                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Available Chips */}
+          {roomData.poker_game.available_chips.length > 0 && (
+            <div style={{ 
+              marginBottom: '2rem',
+              padding: '1rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px'
+            }}>
+              <h3>Available Chips (Public Area)</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {roomData.poker_game.available_chips.map((chipNumber) => (
+                  <button
+                    key={chipNumber}
+                    onClick={() => handleTakeChipFromPublic(chipNumber)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
+                                     roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
+                                     roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
+                                     roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
+                      border: '2px solid #dee2e6',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      minWidth: '40px',
+                      minHeight: '40px'
+                    }}
+                  >
+                    {chipNumber}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Players and Their Chips */}
+          <div style={{ 
+            marginBottom: '2rem',
+            padding: '1rem',
+            backgroundColor: '#e7f3ff',
+            borderRadius: '8px'
+          }}>
+            <h3>Players and Chips</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {roomData.players.map((player) => {
+                const playerChip = roomData.poker_game.player_chips[player];
+                const isCurrentPlayer = player === playerName;
+                return (
+                  <div key={player} style={{
+                    padding: '1rem',
+                    backgroundColor: isCurrentPlayer ? '#cce7ff' : 'white',
+                    border: isCurrentPlayer ? '2px solid #007bff' : '1px solid #dee2e6',
+                    borderRadius: '8px'
+                  }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                      {player} {isCurrentPlayer && '(You)'}
+                    </div>
+                    {playerChip ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{
+                          padding: '0.25rem 0.5rem',
+                          backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
+                                         roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
+                                         roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
+                                         roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
+                          border: '1px solid #dee2e6',
+                          borderRadius: '50%',
+                          fontWeight: 'bold',
+                          minWidth: '30px',
+                          textAlign: 'center'
+                        }}>
+                          {playerChip}
+                        </div>
+                        {!isCurrentPlayer && (
+                          <button
+                            onClick={() => handleTakeChipFromPlayer(player)}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              fontSize: '0.8rem',
+                              backgroundColor: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Take
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ color: '#666', fontStyle: 'italic' }}>No chip</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Player Actions */}
+          <div style={{ 
+            textAlign: 'center',
+            marginBottom: '2rem',
+            padding: '1rem',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px'
+          }}>
+            <h3>Your Actions</h3>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {roomData.poker_game.player_chips[playerName] && (
+                <button
+                  onClick={handleReturnChip}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#ffc107',
+                    color: 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Return My Chip
+                </button>
+              )}
+              
+              {roomData.poker_game.can_advance && (
+                <button
+                  onClick={handleAdvanceRound}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
+                </button>
+              )}
+              
+              <button
+                onClick={handleEndGame}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                End Game
+              </button>
+            </div>
+          </div>
+
+          {/* Game Status */}
+          <div style={{ 
+            textAlign: 'center',
+            padding: '0.5rem',
+            backgroundColor: roomData.poker_game.all_players_have_chip ? '#d4edda' : '#fff3cd',
+            border: `1px solid ${roomData.poker_game.all_players_have_chip ? '#c3e6cb' : '#ffeaa7'}`,
+            borderRadius: '4px',
+            marginBottom: '1rem'
+          }}>
+            {roomData.poker_game.all_players_have_chip ? 
+              '✅ All players have chips! Ready to advance.' : 
+              '⏳ Waiting for all players to get chips...'}
           </div>
         </div>
       ) : (
