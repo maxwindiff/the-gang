@@ -51,8 +51,11 @@ class GameRoom:
         return False
 
     def restart_game(self) -> bool:
-        if self.state == RoomState.INTERMISSION:
-            return self.start_game()
+        if self.state == RoomState.INTERMISSION and 3 <= len(self.players) <= 6:
+            self.state = RoomState.STARTED
+            self.game_state = {}
+            logger.info(f"Game restarted in room {self.name}")
+            return True
         return False
 
     def to_dict(self) -> Dict:

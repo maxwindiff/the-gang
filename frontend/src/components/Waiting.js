@@ -108,9 +108,9 @@ function Waiting() {
     try {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify({ type: 'leave_room' }));
-      } else {
-        navigate('/');
       }
+      // Navigate to home immediately after sending leave message
+      navigate('/');
     } catch (error) {
       console.log('Error leaving room, navigating anyway:', error);
       navigate('/');

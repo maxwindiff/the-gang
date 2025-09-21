@@ -32,6 +32,9 @@ function Game() {
             case 'room_update':
               setRoomData(data.room_data);
               break;
+            case 'game_started':
+              setRoomData(data.room_data);
+              break;
             case 'game_ended':
               setRoomData(data.room_data);
               break;
@@ -91,13 +94,18 @@ function Game() {
   };
 
   const handleRestartGame = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ type: 'restart_game' }));
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: 'restart_game' }));
+      }
+    } catch (error) {
+      console.log('Error restarting game:', error);
+      setError('Failed to restart game. Please try again.');
     }
   };
 
-  const handleBackToWaiting = () => {
-    navigate(`/waiting/${roomName}/${playerName}`);
+  const handleBackToHome = () => {
+    navigate('/');
   };
 
   const getConnectionStatusColor = () => {
@@ -146,7 +154,7 @@ function Game() {
           marginBottom: '2rem'
         }}>
           <h2>🎉 Game Finished!</h2>
-          <p>The game has ended. You can start a new game or return to the waiting room.</p>
+          <p>The game has ended. You can start a new game or return to the home page.</p>
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
@@ -165,7 +173,7 @@ function Game() {
             Start New Game
           </button>
           <button
-            onClick={handleBackToWaiting}
+            onClick={handleBackToHome}
             style={{
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
@@ -176,7 +184,7 @@ function Game() {
               cursor: 'pointer'
             }}
           >
-            Back to Waiting
+            Back to Home
           </button>
         </div>
       </div>
