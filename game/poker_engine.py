@@ -262,7 +262,7 @@ class PokerGame:
         if player_perspective and player_perspective in self.pocket_cards:
             pocket_cards_data = [card.to_dict() for card in self.pocket_cards[player_perspective]]
         
-        # Chip state
+        # Current round chip state
         chip_color = self.get_current_chip_color()
         current_chips = {}
         available_chips = []
@@ -277,6 +277,15 @@ class PokerGame:
             # Available chips in public area
             available_chips = sorted(self.available_chips[chip_color])
         
+        # Complete chip history for all players (visible to everyone)
+        chip_history = {}
+        for player in self.players:
+            chip_history[player] = {}
+            for color in ChipColor:
+                chip_num = self.player_chips[player][color]
+                if chip_num is not None:
+                    chip_history[player][color.value] = chip_num
+        
         return {
             'round': self.current_round.value,
             'players': self.players,
@@ -285,6 +294,7 @@ class PokerGame:
             'current_chip_color': chip_color.value if chip_color else None,
             'player_chips': current_chips,
             'available_chips': available_chips,
+            'chip_history': chip_history,
             'all_players_have_chip': self.all_players_have_chip(),
             'can_advance': self.can_advance_round()
         }

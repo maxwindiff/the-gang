@@ -396,67 +396,249 @@ function Game() {
             </div>
           )}
 
-          {/* Players and Their Chips */}
+          {/* Bidding History - All Players and All Rounds */}
           <div style={{ 
             marginBottom: '2rem',
             padding: '1rem',
             backgroundColor: '#e7f3ff',
             borderRadius: '8px'
           }}>
-            <h3>Players and Chips</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {roomData.players.map((player) => {
-                const playerChip = roomData.poker_game.player_chips[player];
-                const isCurrentPlayer = player === playerName;
-                return (
-                  <div key={player} style={{
-                    padding: '1rem',
-                    backgroundColor: isCurrentPlayer ? '#cce7ff' : 'white',
-                    border: isCurrentPlayer ? '2px solid #007bff' : '1px solid #dee2e6',
-                    borderRadius: '8px'
-                  }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                      {player} {isCurrentPlayer && '(You)'}
-                    </div>
-                    {playerChip ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{
-                          padding: '0.25rem 0.5rem',
-                          backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
-                                         roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
-                                         roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
-                                         roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                          border: '1px solid #dee2e6',
-                          borderRadius: '50%',
-                          fontWeight: 'bold',
-                          minWidth: '30px',
-                          textAlign: 'center'
+            <h3>📈 Bidding History (All Rounds)</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ 
+                width: '100%', 
+                borderCollapse: 'collapse',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f8f9fa' }}>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'left', 
+                      borderBottom: '2px solid #dee2e6',
+                      fontWeight: 'bold'
+                    }}>
+                      Player
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'center', 
+                      borderBottom: '2px solid #dee2e6',
+                      backgroundColor: '#f8f9fa',
+                      fontWeight: 'bold'
+                    }}>
+                      Pre-flop<br/><span style={{ fontSize: '0.8em', color: '#666' }}>White</span>
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'center', 
+                      borderBottom: '2px solid #dee2e6',
+                      backgroundColor: '#fff3cd',
+                      fontWeight: 'bold'
+                    }}>
+                      Flop<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Yellow</span>
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'center', 
+                      borderBottom: '2px solid #dee2e6',
+                      backgroundColor: '#ffeaa7',
+                      fontWeight: 'bold'
+                    }}>
+                      Turn<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Orange</span>
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'center', 
+                      borderBottom: '2px solid #dee2e6',
+                      backgroundColor: '#f8d7da',
+                      fontWeight: 'bold'
+                    }}>
+                      River<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Red</span>
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem', 
+                      textAlign: 'center', 
+                      borderBottom: '2px solid #dee2e6',
+                      fontWeight: 'bold'
+                    }}>
+                      Current Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roomData.players.map((player, index) => {
+                    const isCurrentPlayer = player === playerName;
+                    const playerHistory = roomData.poker_game.chip_history[player] || {};
+                    const currentChip = roomData.poker_game.player_chips[player];
+                    
+                    return (
+                      <tr key={player} style={{ 
+                        backgroundColor: isCurrentPlayer ? '#e7f3ff' : (index % 2 === 0 ? 'white' : '#f9f9f9'),
+                        border: isCurrentPlayer ? '2px solid #007bff' : 'none'
+                      }}>
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          fontWeight: isCurrentPlayer ? 'bold' : 'normal',
+                          borderBottom: '1px solid #dee2e6'
                         }}>
-                          {playerChip}
-                        </div>
-                        {!isCurrentPlayer && (
-                          <button
-                            onClick={() => handleTakeChipFromPlayer(player)}
-                            style={{
+                          {player} {isCurrentPlayer && '(You)'}
+                        </td>
+                        
+                        {/* Pre-flop (White) */}
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          textAlign: 'center',
+                          borderBottom: '1px solid #dee2e6',
+                          backgroundColor: '#f8f9fa'
+                        }}>
+                          {playerHistory.white ? (
+                            <div style={{
+                              display: 'inline-block',
                               padding: '0.25rem 0.5rem',
-                              fontSize: '0.8rem',
-                              backgroundColor: '#28a745',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Take
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div style={{ color: '#666', fontStyle: 'italic' }}>No chip</div>
-                    )}
-                  </div>
-                );
-              })}
+                              backgroundColor: 'white',
+                              border: '2px solid #666',
+                              borderRadius: '50%',
+                              fontWeight: 'bold',
+                              minWidth: '30px'
+                            }}>
+                              {playerHistory.white}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
+                          )}
+                        </td>
+                        
+                        {/* Flop (Yellow) */}
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          textAlign: 'center',
+                          borderBottom: '1px solid #dee2e6',
+                          backgroundColor: '#fff3cd'
+                        }}>
+                          {playerHistory.yellow ? (
+                            <div style={{
+                              display: 'inline-block',
+                              padding: '0.25rem 0.5rem',
+                              backgroundColor: 'white',
+                              border: '2px solid #ffc107',
+                              borderRadius: '50%',
+                              fontWeight: 'bold',
+                              minWidth: '30px'
+                            }}>
+                              {playerHistory.yellow}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
+                          )}
+                        </td>
+                        
+                        {/* Turn (Orange) */}
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          textAlign: 'center',
+                          borderBottom: '1px solid #dee2e6',
+                          backgroundColor: '#ffeaa7'
+                        }}>
+                          {playerHistory.orange ? (
+                            <div style={{
+                              display: 'inline-block',
+                              padding: '0.25rem 0.5rem',
+                              backgroundColor: 'white',
+                              border: '2px solid #fd7e14',
+                              borderRadius: '50%',
+                              fontWeight: 'bold',
+                              minWidth: '30px'
+                            }}>
+                              {playerHistory.orange}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
+                          )}
+                        </td>
+                        
+                        {/* River (Red) */}
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          textAlign: 'center',
+                          borderBottom: '1px solid #dee2e6',
+                          backgroundColor: '#f8d7da'
+                        }}>
+                          {playerHistory.red ? (
+                            <div style={{
+                              display: 'inline-block',
+                              padding: '0.25rem 0.5rem',
+                              backgroundColor: 'white',
+                              border: '2px solid #dc3545',
+                              borderRadius: '50%',
+                              fontWeight: 'bold',
+                              minWidth: '30px'
+                            }}>
+                              {playerHistory.red}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
+                          )}
+                        </td>
+                        
+                        {/* Current Action */}
+                        <td style={{ 
+                          padding: '0.75rem', 
+                          textAlign: 'center',
+                          borderBottom: '1px solid #dee2e6'
+                        }}>
+                          {currentChip ? (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                              <div style={{
+                                padding: '0.25rem 0.5rem',
+                                backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
+                                               roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
+                                               roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
+                                               roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
+                                border: '2px solid #666',
+                                borderRadius: '50%',
+                                fontWeight: 'bold',
+                                minWidth: '30px'
+                              }}>
+                                {currentChip}
+                              </div>
+                              {!isCurrentPlayer && (
+                                <button
+                                  onClick={() => handleTakeChipFromPlayer(player)}
+                                  style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.7rem',
+                                    backgroundColor: '#28a745',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Take
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#666', fontStyle: 'italic' }}>No chip</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ 
+              marginTop: '1rem', 
+              fontSize: '0.9rem', 
+              color: '#666',
+              fontStyle: 'italic',
+              textAlign: 'center'
+            }}>
+              💡 Use the bidding history to infer other players' hand strengths and make strategic decisions
             </div>
           </div>
 
