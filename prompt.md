@@ -170,4 +170,14 @@ now further decrease vertical spacing around the header
 
 more
 
+during scoring, put the scoring screen in the public area
+
+remove the ranking indicators (#1 #2 #3) next to the player names
+
+instead of ordering the hands from weakest to strongest, order them by the numeric value of red chips. put the red chip on the left of the hand and indicate the actual ranking on the right of the hand. the text color of the actual ranking will indicate right/wrong. also remove the red/green border around each hand.
+
+make the red chip more round, no need to include "#". remove the "Team Predictions vs Actual Results" heading
+
+no need to wrap the results inside "Game Results". replace the entire public area instead.
+
 ========

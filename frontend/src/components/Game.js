@@ -297,68 +297,165 @@ function Game() {
             </div>
           )}
 
-          {/* Available Chips */}
-          <div style={{ 
-            marginBottom: '1.5rem',
-            padding: '0.75rem',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px'
-          }}>
-            <h3>Available Chips (Public Area)</h3>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-              {roomData.poker_game.available_chips.length > 0 ? (
-                roomData.poker_game.available_chips.map((chipNumber) => (
-                  <button
-                    key={chipNumber}
-                    onClick={() => handleTakeChipFromPublic(chipNumber)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
-                                     roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
-                                     roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
-                                     roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                      border: '2px solid #dee2e6',
-                      borderRadius: '50%',
-                      cursor: 'pointer',
-                      fontWeight: 'bold',
-                      minWidth: '60px',
-                      minHeight: '60px'
-                    }}
-                  >
-                    {chipNumber}
-                  </button>
-                ))
-              ) : (
-                <div style={{ 
-                  textAlign: 'center',
-                  color: '#6c757d',
-                  fontStyle: 'italic',
-                  padding: '0.75rem',
-                  width: '100%'
-                }}>
-                  All chips have been taken
-                  {roomData.poker_game.can_advance && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <button
-                        onClick={handleAdvanceRound}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '1rem'
-                        }}
-                      >
-                        {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+          {/* Available Chips / Scoring Results */}
+          {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring ? (
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
+              border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`,
+              borderRadius: '8px'
+            }}>
+              <h2 style={{ 
+                textAlign: 'center', 
+                color: roomData.poker_game.scoring.win ? '#155724' : '#721c24',
+                marginBottom: '1rem'
+              }}>
+                {roomData.poker_game.scoring.win ? '🎉 TEAM VICTORY! 🎉' : '💔 TEAM DEFEAT 💔'}
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {(() => {
+                  // Create array of players with their data, sorted by red chip number
+                  const playersWithData = roomData.poker_game.scoring.ranked_players.map(([player, hand], actualRankIndex) => ({
+                    player,
+                    hand,
+                    actualRank: actualRankIndex + 1,
+                    redChip: roomData.poker_game.scoring.red_chip_assignments[player]
+                  }));
+                  
+                  // Sort by red chip number
+                  playersWithData.sort((a, b) => a.redChip - b.redChip);
+                  
+                  return playersWithData.map(({ player, hand, actualRank, redChip }) => {
+                    const isCorrectPosition = redChip === actualRank;
+                    
+                    return (
+                      <div key={player} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '0.75rem',
+                        backgroundColor: 'white',
+                        border: '1px solid #dee2e6',
+                        borderRadius: '4px'
+                      }}>
+                        <div style={{ flex: '0 0 auto', marginRight: '1rem' }}>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#dc3545',
+                            color: 'white',
+                            borderRadius: '50%',
+                            fontSize: '0.9rem',
+                            fontWeight: 'bold',
+                            width: '30px',
+                            height: '30px'
+                          }}>
+                            {redChip}
+                          </div>
+                        </div>
+                        <div style={{ flex: 1, marginRight: '1rem' }}>
+                          <strong>{player}</strong>
+                          {player === playerName && ' (You)'}
+                        </div>
+                        <div style={{ flex: 2, textAlign: 'center' }}>
+                          <div style={{ marginBottom: '0.5rem' }}><strong>{hand.rank_display}</strong></div>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
+                            {hand.cards.map((card, i) => (
+                              <div key={i} style={{
+                                padding: '0.25rem 0.5rem',
+                                backgroundColor: 'white',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                fontSize: '0.9rem',
+                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                fontWeight: 'bold'
+                              }}>
+                                {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ flex: '0 0 auto', textAlign: 'right' }}>
+                          <span style={{
+                            fontSize: '1rem',
+                            fontWeight: 'bold',
+                            color: isCorrectPosition ? '#28a745' : '#dc3545'
+                          }}>
+                            Actual: #{actualRank}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div style={{ 
+              marginBottom: '1.5rem',
+              padding: '0.75rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px'
+            }}>
+              <h3>Available Chips (Public Area)</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                {roomData.poker_game.available_chips.length > 0 ? (
+                  roomData.poker_game.available_chips.map((chipNumber) => (
+                    <button
+                      key={chipNumber}
+                      onClick={() => handleTakeChipFromPublic(chipNumber)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
+                                       roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
+                                       roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
+                                       roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
+                        border: '2px solid #dee2e6',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        minWidth: '60px',
+                        minHeight: '60px'
+                      }}
+                    >
+                      {chipNumber}
+                    </button>
+                  ))
+                ) : (
+                  <div style={{ 
+                    textAlign: 'center',
+                    color: '#6c757d',
+                    fontStyle: 'italic',
+                    padding: '0.75rem',
+                    width: '100%'
+                  }}>
+                    All chips have been taken
+                    {roomData.poker_game.can_advance && (
+                      <div style={{ marginTop: '1rem' }}>
+                        <button
+                          onClick={handleAdvanceRound}
+                          style={{
+                            padding: '0.75rem 1.5rem',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '1rem'
+                          }}
+                        >
+                          {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Bidding History - All Players and All Rounds */}
           <div style={{ 
@@ -676,87 +773,6 @@ function Game() {
             </div>
           )}
 
-          {/* Scoring Results */}
-          {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring && (
-            <div style={{
-              marginBottom: '1.5rem',
-              padding: '2rem',
-              backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
-              border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`,
-              borderRadius: '8px'
-            }}>
-              <h2 style={{ 
-                textAlign: 'center', 
-                color: roomData.poker_game.scoring.win ? '#155724' : '#721c24',
-                marginBottom: '1.5rem'
-              }}>
-                {roomData.poker_game.scoring.win ? '🎉 TEAM VICTORY! 🎉' : '💔 TEAM DEFEAT 💔'}
-              </h2>
-              
-              {/* Player Rankings */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>Final Rankings (Weakest to Strongest)</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {roomData.poker_game.scoring.ranked_players.map(([player, hand], index) => {
-                    const redChip = roomData.poker_game.scoring.red_chip_assignments[player];
-                    const isCorrectPosition = redChip === index + 1;
-                    
-                    return (
-                      <div key={player} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '0.75rem',
-                        backgroundColor: 'white',
-                        border: `2px solid ${isCorrectPosition ? '#28a745' : '#dc3545'}`,
-                        borderRadius: '4px'
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <strong>#{index + 1}: {player}</strong>
-                          {player === playerName && ' (You)'}
-                        </div>
-                        <div style={{ flex: 2, textAlign: 'center' }}>
-                          <div style={{ marginBottom: '0.5rem' }}><strong>{hand.rank_display}</strong></div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
-                            {hand.cards.map((card, i) => (
-                              <div key={i} style={{
-                                padding: '0.25rem 0.5rem',
-                                backgroundColor: 'white',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                fontSize: '0.9rem',
-                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
-                                minWidth: '30px',
-                                textAlign: 'center'
-                              }}>
-                                {card.rank_str}
-                                <span style={{ fontSize: '0.8rem' }}>
-                                  {card.suit === 'hearts' ? '♥' : 
-                                   card.suit === 'diamonds' ? '♦' : 
-                                   card.suit === 'clubs' ? '♣' : '♠'}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>
-                          <span style={{
-                            padding: '0.25rem 0.5rem',
-                            backgroundColor: '#dc3545',
-                            color: 'white',
-                            borderRadius: '50%',
-                            fontSize: '0.9rem'
-                          }}>
-                            Red #{redChip}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Game Status */}
           {roomData.poker_game.round !== 'scoring' && (
