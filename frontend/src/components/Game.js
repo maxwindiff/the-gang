@@ -173,12 +173,12 @@ function Game() {
 
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '1rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '1rem'
+        marginBottom: '0.5rem'
       }}>
         <h1>Game in Progress - Room: {roomName}</h1>
         <div style={{ 
@@ -470,13 +470,15 @@ function Game() {
                         }}>
                           {playerHistory.white && shouldShowInHistory('white') ? (
                             <div style={{
-                              display: 'inline-block',
-                              padding: '0.25rem 0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               backgroundColor: 'white',
                               border: '2px solid #666',
                               borderRadius: '50%',
                               fontWeight: 'bold',
-                              minWidth: '30px'
+                              width: '30px',
+                              height: '30px'
                             }}>
                               {playerHistory.white}
                             </div>
@@ -494,13 +496,15 @@ function Game() {
                         }}>
                           {playerHistory.yellow && shouldShowInHistory('yellow') ? (
                             <div style={{
-                              display: 'inline-block',
-                              padding: '0.25rem 0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               backgroundColor: 'white',
                               border: '2px solid #ffc107',
                               borderRadius: '50%',
                               fontWeight: 'bold',
-                              minWidth: '30px'
+                              width: '30px',
+                              height: '30px'
                             }}>
                               {playerHistory.yellow}
                             </div>
@@ -518,13 +522,15 @@ function Game() {
                         }}>
                           {playerHistory.orange && shouldShowInHistory('orange') ? (
                             <div style={{
-                              display: 'inline-block',
-                              padding: '0.25rem 0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               backgroundColor: 'white',
                               border: '2px solid #fd7e14',
                               borderRadius: '50%',
                               fontWeight: 'bold',
-                              minWidth: '30px'
+                              width: '30px',
+                              height: '30px'
                             }}>
                               {playerHistory.orange}
                             </div>
@@ -542,13 +548,15 @@ function Game() {
                         }}>
                           {playerHistory.red && shouldShowInHistory('red') ? (
                             <div style={{
-                              display: 'inline-block',
-                              padding: '0.25rem 0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               backgroundColor: 'white',
                               border: '2px solid #dc3545',
                               borderRadius: '50%',
                               fontWeight: 'bold',
-                              minWidth: '30px'
+                              width: '30px',
+                              height: '30px'
                             }}>
                               {playerHistory.red}
                             </div>
@@ -566,7 +574,9 @@ function Game() {
                           {currentChip ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                               <div style={{
-                                padding: '0.25rem 0.5rem',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
                                                roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
                                                roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
@@ -574,7 +584,8 @@ function Game() {
                                 border: '2px solid #666',
                                 borderRadius: '50%',
                                 fontWeight: 'bold',
-                                minWidth: '30px'
+                                width: '30px',
+                                height: '30px'
                               }}>
                                 {currentChip}
                               </div>

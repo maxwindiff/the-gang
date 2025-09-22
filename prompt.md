@@ -164,4 +164,10 @@ in the bidding history table, we don't need to show the chips of the current rou
 
 slightly decrease the spacing between the room name and the game area
 
+make the chips in the bidding table more round
+
+now further decrease vertical spacing around the header
+
+more
+
 ========
