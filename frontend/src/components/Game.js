@@ -271,9 +271,6 @@ function Game() {
         </div>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <strong>You are: {playerName}</strong>
-      </div>
 
       {error && (
         <div style={{ 
@@ -289,23 +286,6 @@ function Game() {
 
       {roomData && roomData.poker_game ? (
         <div>
-          {/* Round Information */}
-          <div style={{ 
-            textAlign: 'center',
-            marginBottom: '2rem',
-            padding: '1rem',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px'
-          }}>
-            <h2>Round: {roomData.poker_game.round.charAt(0).toUpperCase() + roomData.poker_game.round.slice(1)}</h2>
-            <p>Current chip color: <span style={{ 
-              color: roomData.poker_game.current_chip_color === 'white' ? '#666' :
-                     roomData.poker_game.current_chip_color === 'yellow' ? '#ffc107' :
-                     roomData.poker_game.current_chip_color === 'orange' ? '#fd7e14' :
-                     roomData.poker_game.current_chip_color === 'red' ? '#dc3545' : '#666',
-              fontWeight: 'bold'
-            }}>{roomData.poker_game.current_chip_color}</span></p>
-          </div>
 
           {/* Community Cards */}
           {roomData.poker_game.community_cards.length > 0 && (
@@ -631,15 +611,6 @@ function Game() {
                 </tbody>
               </table>
             </div>
-            <div style={{ 
-              marginTop: '1rem', 
-              fontSize: '0.9rem', 
-              color: '#666',
-              fontStyle: 'italic',
-              textAlign: 'center'
-            }}>
-              💡 Use the bidding history to infer other players' hand strengths and make strategic decisions
-            </div>
           </div>
 
           {/* Player Actions */}
@@ -740,15 +711,26 @@ function Game() {
                           {player === playerName && ' (You)'}
                         </div>
                         <div style={{ flex: 2, textAlign: 'center' }}>
-                          <div><strong>{hand.rank_display}</strong></div>
-                          <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                          <div style={{ marginBottom: '0.5rem' }}><strong>{hand.rank_display}</strong></div>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
                             {hand.cards.map((card, i) => (
-                              <span key={i} style={{ 
-                                marginRight: '0.25rem',
-                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black'
+                              <div key={i} style={{
+                                padding: '0.25rem 0.5rem',
+                                backgroundColor: 'white',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                fontSize: '0.9rem',
+                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                minWidth: '30px',
+                                textAlign: 'center'
                               }}>
-                                {card.rank_str}{card.suit[0].toUpperCase()}
-                              </span>
+                                {card.rank_str}
+                                <span style={{ fontSize: '0.8rem' }}>
+                                  {card.suit === 'hearts' ? '♥' : 
+                                   card.suit === 'diamonds' ? '♦' : 
+                                   card.suit === 'clubs' ? '♣' : '♠'}
+                                </span>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -766,46 +748,6 @@ function Game() {
                       </div>
                     );
                   })}
-                </div>
-              </div>
-              
-              {/* Individual Player Hands */}
-              <div>
-                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>All Player Hands</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                  {Object.entries(roomData.poker_game.scoring.player_hands).map(([player, hand]) => (
-                    <div key={player} style={{
-                      padding: '1rem',
-                      backgroundColor: 'white',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      textAlign: 'center'
-                    }}>
-                      <h4>{player}{player === playerName && ' (You)'}</h4>
-                      <div style={{ marginBottom: '0.5rem' }}>
-                        <strong>{hand.rank_display}</strong>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
-                        {hand.cards.map((card, i) => (
-                          <div key={i} style={{
-                            padding: '0.25rem 0.5rem',
-                            backgroundColor: 'white',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '0.9rem',
-                            color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black'
-                          }}>
-                            {card.rank_str}
-                            <span style={{ fontSize: '0.8rem' }}>
-                              {card.suit === 'hearts' ? '♥' : 
-                               card.suit === 'diamonds' ? '♦' : 
-                               card.suit === 'clubs' ? '♣' : '♠'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>

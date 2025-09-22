@@ -137,3 +137,13 @@ It's possible for two hands to be tied after all tie-breakers are considered. Th
 6. All scoring information (strongest hand of each player, order of hands, win/loss) will be displayed in the front end.
 
 ========
+
+remove the "You are: c" and "Round: scoring" UI elements, they should be obvious from the rest of the game state.
+
+actually, remove the round section entirely, not just for scoring phase
+
+in the results screen, render the hand graphically in the "Final Ranking" section, and remove the "All Player Hands" section
+
+remove the "Use the bidding history to infer other players' hand strengths and make strategic decisions" hint
+
+========
