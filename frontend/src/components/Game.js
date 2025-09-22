@@ -12,6 +12,95 @@ function Game() {
   const ws = useRef(null);
   const isClosing = useRef(false);
 
+  // Chip styling helper functions
+  const getChipBackgroundColor = (chipColor) => {
+    switch (chipColor) {
+      case 'white': return '#f8f9fa';
+      case 'yellow': return '#fff3cd';
+      case 'orange': return '#ffeaa7';
+      case 'red': return '#f8d7da';
+      default: return '#f8f9fa';
+    }
+  };
+
+  const getChipBorderColor = (chipColor) => {
+    switch (chipColor) {
+      case 'white': return '#6c757d';
+      case 'yellow': return '#e0a800';
+      case 'orange': return '#d67010';
+      case 'red': return '#b02a37';
+      default: return '#6c757d';
+    }
+  };
+
+  const getChipTextColor = (chipColor) => {
+    switch (chipColor) {
+      case 'white': return '#343a40';
+      case 'yellow': return '#856404';
+      case 'orange': return '#974c0f';
+      case 'red': return '#721c24';
+      default: return '#343a40';
+    }
+  };
+
+  const getChipStyle = (chipColor, size = 30) => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: getChipBackgroundColor(chipColor),
+    border: `2px solid ${getChipBorderColor(chipColor)}`,
+    borderRadius: '50%',
+    fontWeight: 'bold',
+    color: getChipTextColor(chipColor),
+    width: `${size}px`,
+    height: `${size}px`,
+    ...(size > 30 && { fontSize: '1rem', cursor: 'pointer' })
+  });
+
+  // Reusable chip component
+  const Chip = ({ chipColor, size = 30, children, onClick, ...props }) => {
+    const style = getChipStyle(chipColor, size);
+    if (onClick) {
+      return (
+        <button onClick={onClick} style={style} {...props}>
+          {children}
+        </button>
+      );
+    }
+    return (
+      <div style={style} {...props}>
+        {children}
+      </div>
+    );
+  };
+
+  // Common styles
+  const styles = {
+    section: {
+      marginBottom: '1.5rem',
+      padding: '0.75rem',
+      borderRadius: '8px'
+    },
+    centerText: {
+      textAlign: 'center'
+    },
+    button: {
+      padding: '0.75rem 1.5rem',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontSize: '1rem'
+    },
+    smallButton: {
+      padding: '0.25rem 0.5rem',
+      fontSize: '0.7rem',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer'
+    }
+  };
+
   useEffect(() => {
     const connectWebSocket = () => {
       ws.current = new WebSocket(`${WS_BASE}/ws/game/${roomName}/${playerName}/`);
@@ -300,14 +389,13 @@ function Game() {
           {/* Available Chips / Scoring Results */}
           {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring ? (
             <div style={{
-              marginBottom: '1.5rem',
+              ...styles.section,
               padding: '1rem',
               backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
-              border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`,
-              borderRadius: '8px'
+              border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`
             }}>
               <h2 style={{ 
-                textAlign: 'center', 
+                ...styles.centerText,
                 color: roomData.poker_game.scoring.win ? '#155724' : '#721c24',
                 marginBottom: '1rem'
               }}>
@@ -395,44 +483,21 @@ function Game() {
             </div>
           ) : (
             <div style={{ 
-              marginBottom: '1.5rem',
-              padding: '0.75rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px'
+              ...styles.section,
+              backgroundColor: '#f8f9fa'
             }}>
               <h3>Available Chips (Public Area)</h3>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                 {roomData.poker_game.available_chips.length > 0 ? (
                   roomData.poker_game.available_chips.map((chipNumber) => (
-                    <button
+                    <Chip
                       key={chipNumber}
+                      chipColor={roomData.poker_game.current_chip_color}
+                      size={40}
                       onClick={() => handleTakeChipFromPublic(chipNumber)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
-                                       roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
-                                       roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
-                                       roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                        border: roomData.poker_game.current_chip_color === 'white' ? '2px solid #6c757d' :
-                               roomData.poker_game.current_chip_color === 'yellow' ? '2px solid #e0a800' :
-                               roomData.poker_game.current_chip_color === 'orange' ? '2px solid #d67010' :
-                               roomData.poker_game.current_chip_color === 'red' ? '2px solid #b02a37' : '2px solid #6c757d',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        color: roomData.poker_game.current_chip_color === 'white' ? '#343a40' :
-                               roomData.poker_game.current_chip_color === 'yellow' ? '#856404' :
-                               roomData.poker_game.current_chip_color === 'orange' ? '#974c0f' :
-                               roomData.poker_game.current_chip_color === 'red' ? '#721c24' : '#343a40',
-                        width: '40px',
-                        height: '40px',
-                        fontSize: '1rem'
-                      }}
                     >
                       {chipNumber}
-                    </button>
+                    </Chip>
                   ))
                 ) : (
                   <div style={{ 
@@ -469,10 +534,8 @@ function Game() {
 
           {/* Bidding History - All Players and All Rounds */}
           <div style={{ 
-            marginBottom: '1.5rem',
-            padding: '0.75rem',
-            backgroundColor: '#e7f3ff',
-            borderRadius: '8px'
+            ...styles.section,
+            backgroundColor: '#e7f3ff'
           }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
@@ -576,20 +639,9 @@ function Game() {
                           backgroundColor: '#f8f9fa'
                         }}>
                           {playerHistory.white && shouldShowInHistory('white') ? (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: '#f8f9fa',
-                              border: '2px solid #6c757d',
-                              borderRadius: '50%',
-                              fontWeight: 'bold',
-                              color: '#343a40',
-                              width: '30px',
-                              height: '30px'
-                            }}>
+                            <Chip chipColor="white">
                               {playerHistory.white}
-                            </div>
+                            </Chip>
                           ) : (
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
@@ -603,20 +655,9 @@ function Game() {
                           backgroundColor: '#fff3cd'
                         }}>
                           {playerHistory.yellow && shouldShowInHistory('yellow') ? (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: '#fff3cd',
-                              border: '2px solid #e0a800',
-                              borderRadius: '50%',
-                              fontWeight: 'bold',
-                              color: '#856404',
-                              width: '30px',
-                              height: '30px'
-                            }}>
+                            <Chip chipColor="yellow">
                               {playerHistory.yellow}
-                            </div>
+                            </Chip>
                           ) : (
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
@@ -630,20 +671,9 @@ function Game() {
                           backgroundColor: '#ffeaa7'
                         }}>
                           {playerHistory.orange && shouldShowInHistory('orange') ? (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: '#ffeaa7',
-                              border: '2px solid #d67010',
-                              borderRadius: '50%',
-                              fontWeight: 'bold',
-                              color: '#974c0f',
-                              width: '30px',
-                              height: '30px'
-                            }}>
+                            <Chip chipColor="orange">
                               {playerHistory.orange}
-                            </div>
+                            </Chip>
                           ) : (
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
@@ -657,20 +687,9 @@ function Game() {
                           backgroundColor: '#f8d7da'
                         }}>
                           {playerHistory.red && shouldShowInHistory('red') ? (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: '#f8d7da',
-                              border: '2px solid #b02a37',
-                              borderRadius: '50%',
-                              fontWeight: 'bold',
-                              color: '#721c24',
-                              width: '30px',
-                              height: '30px'
-                            }}>
+                            <Chip chipColor="red">
                               {playerHistory.red}
-                            </div>
+                            </Chip>
                           ) : (
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
@@ -684,40 +703,16 @@ function Game() {
                         }}>
                           {currentChip ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                              <div style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
-                                               roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
-                                               roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
-                                               roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                                border: roomData.poker_game.current_chip_color === 'white' ? '2px solid #6c757d' :
-                                       roomData.poker_game.current_chip_color === 'yellow' ? '2px solid #e0a800' :
-                                       roomData.poker_game.current_chip_color === 'orange' ? '2px solid #d67010' :
-                                       roomData.poker_game.current_chip_color === 'red' ? '2px solid #b02a37' : '2px solid #6c757d',
-                                borderRadius: '50%',
-                                fontWeight: 'bold',
-                                color: roomData.poker_game.current_chip_color === 'white' ? '#343a40' :
-                                       roomData.poker_game.current_chip_color === 'yellow' ? '#856404' :
-                                       roomData.poker_game.current_chip_color === 'orange' ? '#974c0f' :
-                                       roomData.poker_game.current_chip_color === 'red' ? '#721c24' : '#343a40',
-                                width: '30px',
-                                height: '30px'
-                              }}>
+                              <Chip chipColor={roomData.poker_game.current_chip_color}>
                                 {currentChip}
-                              </div>
+                              </Chip>
                               {!isCurrentPlayer && (
                                 <button
                                   onClick={() => handleTakeChipFromPlayer(player)}
                                   style={{
-                                    padding: '0.25rem 0.5rem',
-                                    fontSize: '0.7rem',
+                                    ...styles.smallButton,
                                     backgroundColor: '#28a745',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
+                                    color: 'white'
                                   }}
                                 >
                                   Take
@@ -727,13 +722,9 @@ function Game() {
                                 <button
                                   onClick={handleReturnChip}
                                   style={{
-                                    padding: '0.25rem 0.5rem',
-                                    fontSize: '0.7rem',
+                                    ...styles.smallButton,
                                     backgroundColor: '#ffc107',
-                                    color: 'black',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
+                                    color: 'black'
                                   }}
                                 >
                                   Return
@@ -755,23 +746,16 @@ function Game() {
           {/* Scoring Actions */}
           {roomData.poker_game.round === 'scoring' && (
             <div style={{ 
-              textAlign: 'center',
-              marginBottom: '1.5rem',
-              padding: '0.75rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px'
+              ...styles.section,
+              ...styles.centerText,
+              backgroundColor: '#f8f9fa'
             }}>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={handleRestartGame}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '1rem'
+                    ...styles.button,
+                    backgroundColor: '#28a745'
                   }}
                 >
                   Start New Game
@@ -779,13 +763,8 @@ function Game() {
                 <button
                   onClick={handleBackToHome}
                   style={{
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '1rem'
+                    ...styles.button,
+                    backgroundColor: '#6c757d'
                   }}
                 >
                   Back to Home
