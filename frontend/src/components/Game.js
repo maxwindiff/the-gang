@@ -233,57 +233,67 @@ function Game() {
       {roomData && roomData.poker_game ? (
         <div>
 
-          {/* Community Cards */}
-          {roomData.poker_game.community_cards.length > 0 && (
+          {/* Cards Section - Pocket Cards (left) and Community Cards (right) */}
+          {(roomData.poker_game.pocket_cards?.length > 0 || roomData.poker_game.community_cards.length > 0) && (
             <div style={{ 
-              textAlign: 'center',
+              display: 'flex',
+              gap: '1rem',
               marginBottom: '2rem',
-              padding: '1rem',
-              backgroundColor: '#e8f5e8',
-              borderRadius: '8px'
+              flexWrap: 'wrap'
             }}>
-              <h3>Community Cards</h3>
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {roomData.poker_game.community_cards.map((card, index) => (
-                  <div key={index} style={{
-                    padding: '0.5rem',
-                    backgroundColor: 'white',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    minWidth: '40px',
-                    textAlign: 'center'
-                  }}>
-                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+              {/* Pocket Cards */}
+              {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
+                <div style={{ 
+                  flex: '0 0 auto',
+                  padding: '1rem',
+                  backgroundColor: '#fff3cd',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <h3>Your Pocket Cards</h3>
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                    {roomData.poker_game.pocket_cards.map((card, index) => (
+                      <div key={index} style={{
+                        padding: '0.5rem',
+                        backgroundColor: 'white',
+                        border: '2px solid #ffc107',
+                        borderRadius: '4px',
+                        minWidth: '40px',
+                        textAlign: 'center'
+                      }}>
+                        {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
-          {/* Pocket Cards */}
-          {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
-            <div style={{ 
-              textAlign: 'center',
-              marginBottom: '2rem',
-              padding: '1rem',
-              backgroundColor: '#fff3cd',
-              borderRadius: '8px'
-            }}>
-              <h3>Your Pocket Cards</h3>
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                {roomData.poker_game.pocket_cards.map((card, index) => (
-                  <div key={index} style={{
-                    padding: '0.5rem',
-                    backgroundColor: 'white',
-                    border: '2px solid #ffc107',
-                    borderRadius: '4px',
-                    minWidth: '40px',
-                    textAlign: 'center'
-                  }}>
-                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+              {/* Community Cards */}
+              {roomData.poker_game.community_cards.length > 0 && (
+                <div style={{ 
+                  flex: '1',
+                  padding: '1rem',
+                  backgroundColor: '#e8f5e8',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <h3>Community Cards</h3>
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {roomData.poker_game.community_cards.map((card, index) => (
+                      <div key={index} style={{
+                        padding: '0.5rem',
+                        backgroundColor: 'white',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        minWidth: '40px',
+                        textAlign: 'center'
+                      }}>
+                        {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -357,7 +367,6 @@ function Game() {
             backgroundColor: '#e7f3ff',
             borderRadius: '8px'
           }}>
-            <h3>📈 Bidding History (All Rounds)</h3>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ 
                 width: '100%', 

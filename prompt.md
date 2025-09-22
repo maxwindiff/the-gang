@@ -154,4 +154,9 @@ actually maybe we don't need the intermission state any more?
 
 remove the "Your Actions" section during normal gameplay. instead: (1) move the "return my chip" button into the "current action" area, next to the player's chip. (2) show the "next round" button in the "available chips (public area)" once all chips are taken. (3) change the "end game" button to a link at the top right corner
 
+hide the "📈 Bidding History (All Rounds)" caption
+
+layout the community cards and pocket cards side by side (pocket cards on the left), in the order to save some vertical space
+
+
 ========
