@@ -335,7 +335,7 @@ function Game() {
           )}
 
           {/* Pocket Cards */}
-          {roomData.poker_game.pocket_cards.length > 0 && (
+          {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
             <div style={{ 
               textAlign: 'center',
               marginBottom: '2rem',

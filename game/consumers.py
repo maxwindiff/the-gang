@@ -28,15 +28,24 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         # Send initial room state to this player
         if room:
-            await self.send_room_update(room)
-            # Broadcast updated room state to all other players
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'room_update',
-                    'room_data': room.to_dict()
-                }
-            )
+            if room.state == RoomState.STARTED:
+                # If game is already started, send game_update with full state
+                await self.send(text_data=json.dumps({
+                    'type': 'game_update',
+                    'room_data': room.to_dict(self.player_name)
+                }))
+            else:
+                await self.send_room_update(room)
+            # Only broadcast room_update if not in active game
+            if room.state != RoomState.STARTED:
+                # Broadcast updated room state to all other players
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'room_update',
+                        'room_data': room.to_dict()
+                    }
+                )
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
