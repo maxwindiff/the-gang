@@ -162,4 +162,6 @@ slightly reduce vertical spacing between sections to save more vertical space
 
 in the bidding history table, we don't need to show the chips of the current round in both the history column and the "Current Action" column. we only need to populate the history column after a round has ended.
 
+slightly decrease the spacing between the room name and the game area
+
 ========

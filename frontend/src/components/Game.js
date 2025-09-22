@@ -178,7 +178,7 @@ function Game() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '1.5rem'
+        marginBottom: '1rem'
       }}>
         <h1>Game in Progress - Room: {roomName}</h1>
         <div style={{ 
