@@ -1,19 +1,6 @@
-# The Gang - Django ASGI + React Poker Game
+# The Gang - Cooperative Poker Game
 
-A simple web-based poker variant with real-time multiplayer functionality.
-
-## Features
-
-- **Landing Page**: Join or create game rooms with alphanumeric names
-- **Waiting Room**: Real-time player list updates via WebSocket
-- **Game Flow**: Support for 3-6 players with state management
-- **In-Memory Storage**: All game data stored server-side without external databases
-
-## Room States
-
-- **Waiting**: Players can join/leave, 3-6 players needed to start
-- **Started**: Game in progress (placeholder implementation)
-- **Intermission**: Game ended, can restart or return to waiting
+A real-time multiplayer cooperative poker variant where players work together to predict hand strengths.
 
 ## Setup
 
@@ -44,7 +31,7 @@ npm install
 npm start
 ```
 
-## Usage
+### Usage
 
 1. Start both Django backend (port 8000) and React frontend (port 3000)
 2. Open http://localhost:3000 in your browser
@@ -52,24 +39,26 @@ npm start
 4. Wait for other players to join (3-6 players needed)
 5. Any player can start the game when enough players are present
 
-## Technical Implementation
+## Game Rules
 
-- **Backend**: Django with Channels for WebSocket support
-- **Frontend**: React with React Router for navigation
-- **Real-time**: WebSocket connections for live updates
-- **CORS**: Configured for local development
-- **Storage**: In-memory room management (no database required)
+**The Gang** is a cooperative poker game where all players win or lose together based on their ability to correctly predict hand strengths.
 
-## API Endpoints
+### Objective
+Work as a team to correctly assign red chips (#1, #2, #3, etc.) to players based on the final strength of their poker hands. Player with red chip #1 should have the weakest hand, #2 the second weakest, and so on.
 
-- `POST /api/join-room/` - Join or create a game room
-- `GET /api/room-status/<room_name>/` - Get room information
-- `WS /ws/game/<room_name>/<player_name>/` - WebSocket connection for real-time updates
+### Gameplay
+1. **Four Rounds**: Pre-flop → Flop → Turn → River → Scoring
+2. **Chip Colors**: Each round has a different colored chip (White → Yellow → Orange → Red)
+3. **Strategic Bidding**: Players take chips from the public area or steal from other players
+4. **Bidding History**: All previous chip selections are visible to help infer hand strengths
+5. **Final Prediction**: Red chips in the river round represent your team's prediction of final hand rankings
 
-## Future Enhancements
+### Winning Condition
+The team wins if the red chip assignments match the actual hand strength rankings. If any red chip is assigned incorrectly, the entire team loses.
 
-- Implement actual poker game logic
-- Add player authentication
-- Persist game state with Redis or database
-- Add spectator mode
-- Implement game statistics
+### Poker Hand Rankings
+Standard poker hands apply (Royal Flush > Straight Flush > Four of a Kind > Full House > Flush > Straight > Three of a Kind > Two Pair > One Pair > High Card).
+
+---
+
+For implementation details and development history, see [prompt.md](prompt.md).
