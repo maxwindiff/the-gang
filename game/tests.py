@@ -145,7 +145,7 @@ class GameRoomTestCase(TestCase):
         
         success = self.room.end_game()
         self.assertTrue(success)
-        self.assertEqual(self.room.state, RoomState.INTERMISSION)
+        self.assertEqual(self.room.state, RoomState.WAITING)
 
     def test_restart_game(self):
         for i in range(1, 4):
@@ -563,8 +563,43 @@ class IntegrationTestCase(TestCase):
         room.start_game()
         room.end_game()
         
-        self.assertEqual(room.state, RoomState.INTERMISSION)
+        self.assertEqual(room.state, RoomState.WAITING)
         
+        success = room.restart_game()
+        self.assertTrue(success)
+        self.assertEqual(room.state, RoomState.STARTED)
+        self.assertIsNotNone(room.poker_game)
+        self.assertEqual(room.poker_game.current_round, GameRound.PREFLOP)
+
+    def test_restart_game_from_scoring(self):
+        players = ['alice', 'bob', 'charlie']
+        
+        for player in players:
+            room_manager.join_room('scoring_restart_test', player)
+        
+        room = room_manager.get_room('scoring_restart_test')
+        room.start_game()
+        
+        # Advance game to scoring phase
+        for player in players:
+            room.poker_game.player_chips[player][ChipColor.WHITE] = 1
+            room.poker_game.player_chips[player][ChipColor.YELLOW] = 1
+            room.poker_game.player_chips[player][ChipColor.ORANGE] = 1
+        
+        room.poker_game.advance_round()  # To flop
+        room.poker_game.advance_round()  # To turn  
+        room.poker_game.advance_round()  # To river
+        
+        for i, player in enumerate(players):
+            room.poker_game.player_chips[player][ChipColor.RED] = i + 1
+        
+        room.poker_game.advance_round()  # To scoring
+        
+        # Verify we're in scoring phase
+        self.assertEqual(room.poker_game.current_round, GameRound.SCORING)
+        self.assertEqual(room.state, RoomState.STARTED)
+        
+        # Test restart from scoring phase
         success = room.restart_game()
         self.assertTrue(success)
         self.assertEqual(room.state, RoomState.STARTED)

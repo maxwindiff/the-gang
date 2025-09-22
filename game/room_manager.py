@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 class RoomState(Enum):
     WAITING = "waiting"
     STARTED = "started"
-    INTERMISSION = "intermission"
 
 class GameRoom:
     def __init__(self, name: str):
@@ -48,13 +47,22 @@ class GameRoom:
 
     def end_game(self) -> bool:
         if self.state == RoomState.STARTED:
-            self.state = RoomState.INTERMISSION
+            self.state = RoomState.WAITING
+            self.poker_game = None
             logger.info(f"Game ended in room {self.name}")
             return True
         return False
 
     def restart_game(self) -> bool:
-        if self.state == RoomState.INTERMISSION and 3 <= len(self.players) <= 6:
+        # Allow restart from scoring phase or when game has ended
+        can_restart = (
+            (self.state == RoomState.WAITING) or 
+            (self.state == RoomState.STARTED and self.poker_game and 
+             hasattr(self.poker_game, 'current_round') and 
+             self.poker_game.current_round.value == 'scoring')
+        ) and 3 <= len(self.players) <= 6
+        
+        if can_restart:
             self.state = RoomState.STARTED
             self.poker_game = PokerGame(self.players.copy())
             self.game_state = {}

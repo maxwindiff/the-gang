@@ -171,78 +171,6 @@ function Game() {
     }
   };
 
-  if (roomData?.state === 'intermission') {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '2rem'
-        }}>
-          <h1>Game Over - Room: {roomName}</h1>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem',
-            fontSize: '0.9rem'
-          }}>
-            <div 
-              style={{ 
-                width: '10px', 
-                height: '10px', 
-                borderRadius: '50%', 
-                backgroundColor: getConnectionStatusColor() 
-              }}
-            />
-            {connectionStatus}
-          </div>
-        </div>
-
-        <div style={{ 
-          textAlign: 'center',
-          padding: '2rem',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          marginBottom: '2rem'
-        }}>
-          <h2>🎉 Game Finished!</h2>
-          <p>The game has ended. You can start a new game or return to the home page.</p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button
-            onClick={handleRestartGame}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Start New Game
-          </button>
-          <button
-            onClick={handleBackToHome}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -623,51 +551,86 @@ function Game() {
           }}>
             <h3>Your Actions</h3>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {roomData.poker_game.player_chips[playerName] && (
-                <button
-                  onClick={handleReturnChip}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#ffc107',
-                    color: 'black',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Return My Chip
-                </button>
+              {roomData.poker_game.round === 'scoring' ? (
+                <>
+                  <button
+                    onClick={handleRestartGame}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Start New Game
+                  </button>
+                  <button
+                    onClick={handleBackToHome}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Back to Home
+                  </button>
+                </>
+              ) : (
+                <>
+                  {roomData.poker_game.player_chips[playerName] && (
+                    <button
+                      onClick={handleReturnChip}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#ffc107',
+                        color: 'black',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Return My Chip
+                    </button>
+                  )}
+                  
+                  {roomData.poker_game.can_advance && (
+                    <button
+                      onClick={handleAdvanceRound}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={handleEndGame}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    End Game
+                  </button>
+                </>
               )}
-              
-              {roomData.poker_game.can_advance && (
-                <button
-                  onClick={handleAdvanceRound}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
-                </button>
-              )}
-              
-              <button
-                onClick={handleEndGame}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                End Game
-              </button>
             </div>
           </div>
 

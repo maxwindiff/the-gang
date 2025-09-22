@@ -147,3 +147,9 @@ in the results screen, render the hand graphically in the "Final Ranking" sectio
 remove the "Use the bidding history to infer other players' hand strengths and make strategic decisions" hint
 
 ========
+
+the start new game button is still not working, no response at all
+
+actually maybe we don't need the intermission state any more?
+
+========

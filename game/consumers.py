@@ -127,18 +127,19 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def handle_restart_game(self):
         room = room_manager.get_room(self.room_name)
-        if room and room.state == RoomState.INTERMISSION:
-            room.restart_game()
-            # Send personalized game_started message to each player
-            for player in room.players:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'game_started',
-                        'room_data': room.to_dict(player),
-                        'target_player': player
-                    }
-                )
+        if room:
+            success = room.restart_game()
+            if success:
+                # Send personalized game_started message to each player
+                for player in room.players:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'game_started',
+                            'room_data': room.to_dict(player),
+                            'target_player': player
+                        }
+                    )
 
     async def handle_leave_room(self):
         success = room_manager.leave_room(self.room_name, self.player_name)
