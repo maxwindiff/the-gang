@@ -436,6 +436,17 @@ function Game() {
                     const isCurrentPlayer = player === playerName;
                     const playerHistory = roomData.poker_game.chip_history[player] || {};
                     const currentChip = roomData.poker_game.player_chips[player];
+                    const currentRound = roomData.poker_game.round;
+                    
+                    // Helper function to determine if a round should show in history
+                    const shouldShowInHistory = (roundColor) => {
+                      const roundOrder = ['preflop', 'flop', 'turn', 'river', 'scoring'];
+                      const colorToRound = { white: 'preflop', yellow: 'flop', orange: 'turn', red: 'river' };
+                      const historyRound = colorToRound[roundColor];
+                      const currentRoundIndex = roundOrder.indexOf(currentRound);
+                      const historyRoundIndex = roundOrder.indexOf(historyRound);
+                      return historyRoundIndex < currentRoundIndex;
+                    };
                     
                     return (
                       <tr key={player} style={{ 
@@ -457,7 +468,7 @@ function Game() {
                           borderBottom: '1px solid #dee2e6',
                           backgroundColor: '#f8f9fa'
                         }}>
-                          {playerHistory.white ? (
+                          {playerHistory.white && shouldShowInHistory('white') ? (
                             <div style={{
                               display: 'inline-block',
                               padding: '0.25rem 0.5rem',
@@ -481,7 +492,7 @@ function Game() {
                           borderBottom: '1px solid #dee2e6',
                           backgroundColor: '#fff3cd'
                         }}>
-                          {playerHistory.yellow ? (
+                          {playerHistory.yellow && shouldShowInHistory('yellow') ? (
                             <div style={{
                               display: 'inline-block',
                               padding: '0.25rem 0.5rem',
@@ -505,7 +516,7 @@ function Game() {
                           borderBottom: '1px solid #dee2e6',
                           backgroundColor: '#ffeaa7'
                         }}>
-                          {playerHistory.orange ? (
+                          {playerHistory.orange && shouldShowInHistory('orange') ? (
                             <div style={{
                               display: 'inline-block',
                               padding: '0.25rem 0.5rem',
@@ -529,7 +540,7 @@ function Game() {
                           borderBottom: '1px solid #dee2e6',
                           backgroundColor: '#f8d7da'
                         }}>
-                          {playerHistory.red ? (
+                          {playerHistory.red && shouldShowInHistory('red') ? (
                             <div style={{
                               display: 'inline-block',
                               padding: '0.25rem 0.5rem',

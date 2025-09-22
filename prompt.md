@@ -160,4 +160,6 @@ layout the community cards and pocket cards side by side (pocket cards on the le
 
 slightly reduce vertical spacing between sections to save more vertical space
 
+in the bidding history table, we don't need to show the chips of the current round in both the history column and the "Current Action" column. we only need to populate the history column after a round has ended.
+
 ========
