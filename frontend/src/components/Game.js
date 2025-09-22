@@ -198,7 +198,7 @@ function Game() {
             />
             {connectionStatus}
           </div>
-          {roomData.poker_game.round !== 'scoring' && (
+          {roomData?.poker_game?.round !== 'scoring' && (
             <button
               onClick={handleEndGame}
               style={{
