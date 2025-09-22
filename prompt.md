@@ -152,4 +152,6 @@ the start new game button is still not working, no response at all
 
 actually maybe we don't need the intermission state any more?
 
+remove the "Your Actions" section during normal gameplay. instead: (1) move the "return my chip" button into the "current action" area, next to the player's chip. (2) show the "next round" button in the "available chips (public area)" once all chips are taken. (3) change the "end game" button to a link at the top right corner
+
 ========
