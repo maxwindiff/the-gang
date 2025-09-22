@@ -408,17 +408,27 @@ function Game() {
                       key={chipNumber}
                       onClick={() => handleTakeChipFromPublic(chipNumber)}
                       style={{
-                        padding: '0.5rem 1rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         backgroundColor: roomData.poker_game.current_chip_color === 'white' ? '#f8f9fa' :
                                        roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
                                        roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
                                        roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                        border: '2px solid #dee2e6',
+                        border: roomData.poker_game.current_chip_color === 'white' ? '2px solid #6c757d' :
+                               roomData.poker_game.current_chip_color === 'yellow' ? '2px solid #e0a800' :
+                               roomData.poker_game.current_chip_color === 'orange' ? '2px solid #d67010' :
+                               roomData.poker_game.current_chip_color === 'red' ? '2px solid #b02a37' : '2px solid #6c757d',
                         borderRadius: '50%',
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        minWidth: '60px',
-                        minHeight: '60px'
+                        color: roomData.poker_game.current_chip_color === 'white' ? '#343a40' :
+                               roomData.poker_game.current_chip_color === 'yellow' ? '#856404' :
+                               roomData.poker_game.current_chip_color === 'orange' ? '#974c0f' :
+                               roomData.poker_game.current_chip_color === 'red' ? '#721c24' : '#343a40',
+                        width: '40px',
+                        height: '40px',
+                        fontSize: '1rem'
                       }}
                     >
                       {chipNumber}
@@ -570,10 +580,11 @@ function Game() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: 'white',
-                              border: '2px solid #666',
+                              backgroundColor: '#f8f9fa',
+                              border: '2px solid #6c757d',
                               borderRadius: '50%',
                               fontWeight: 'bold',
+                              color: '#343a40',
                               width: '30px',
                               height: '30px'
                             }}>
@@ -596,10 +607,11 @@ function Game() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: 'white',
-                              border: '2px solid #ffc107',
+                              backgroundColor: '#fff3cd',
+                              border: '2px solid #e0a800',
                               borderRadius: '50%',
                               fontWeight: 'bold',
+                              color: '#856404',
                               width: '30px',
                               height: '30px'
                             }}>
@@ -622,10 +634,11 @@ function Game() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: 'white',
-                              border: '2px solid #fd7e14',
+                              backgroundColor: '#ffeaa7',
+                              border: '2px solid #d67010',
                               borderRadius: '50%',
                               fontWeight: 'bold',
+                              color: '#974c0f',
                               width: '30px',
                               height: '30px'
                             }}>
@@ -648,10 +661,11 @@ function Game() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: 'white',
-                              border: '2px solid #dc3545',
+                              backgroundColor: '#f8d7da',
+                              border: '2px solid #b02a37',
                               borderRadius: '50%',
                               fontWeight: 'bold',
+                              color: '#721c24',
                               width: '30px',
                               height: '30px'
                             }}>
@@ -678,9 +692,16 @@ function Game() {
                                                roomData.poker_game.current_chip_color === 'yellow' ? '#fff3cd' :
                                                roomData.poker_game.current_chip_color === 'orange' ? '#ffeaa7' :
                                                roomData.poker_game.current_chip_color === 'red' ? '#f8d7da' : '#f8f9fa',
-                                border: '2px solid #666',
+                                border: roomData.poker_game.current_chip_color === 'white' ? '2px solid #6c757d' :
+                                       roomData.poker_game.current_chip_color === 'yellow' ? '2px solid #e0a800' :
+                                       roomData.poker_game.current_chip_color === 'orange' ? '2px solid #d67010' :
+                                       roomData.poker_game.current_chip_color === 'red' ? '2px solid #b02a37' : '2px solid #6c757d',
                                 borderRadius: '50%',
                                 fontWeight: 'bold',
+                                color: roomData.poker_game.current_chip_color === 'white' ? '#343a40' :
+                                       roomData.poker_game.current_chip_color === 'yellow' ? '#856404' :
+                                       roomData.poker_game.current_chip_color === 'orange' ? '#974c0f' :
+                                       roomData.poker_game.current_chip_color === 'red' ? '#721c24' : '#343a40',
                                 width: '30px',
                                 height: '30px'
                               }}>

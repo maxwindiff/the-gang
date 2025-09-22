@@ -180,4 +180,12 @@ make the red chip more round, no need to include "#". remove the "Team Predictio
 
 no need to wrap the results inside "Game Results". replace the entire public area instead.
 
+the chips inside the public area should have the same style as the chips in the bidding table
+
+I guess we can make them slightly bigger
+
+the styling of the chips in the public area and bidding table are inconsistent. let's do it this way: light white/yellow/orange/red background, darker gray/yellow/orange/red border, text is always black
+
+actually, let use an even darker shade of the color for the text (instead of black)
+
 ========
