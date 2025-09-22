@@ -2,6 +2,28 @@
 export const API_BASE = 'http://localhost:8000';
 export const WS_BASE = 'ws://localhost:8000';
 
+// Chip colors
+export const chipColors = {
+  backgrounds: {
+    white: '#f8f9fa',
+    yellow: '#fff3cd',
+    orange: '#ffcc80',  // More orange background
+    red: '#f8d7da'
+  },
+  borders: {
+    white: '#6c757d',
+    yellow: '#e0a800',
+    orange: '#e65100',  // More orange border
+    red: '#b02a37'
+  },
+  text: {
+    white: '#343a40',
+    yellow: '#856404',
+    orange: '#bf360c',  // More orange text
+    red: '#721c24'
+  }
+};
+
 // Common styles
 export const commonStyles = {
   container: {

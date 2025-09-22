@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { statusColors } from '../utils/constants';
+import { statusColors, chipColors } from '../utils/constants';
 
 function Game() {
   const { roomName, playerName } = useParams();
@@ -10,33 +10,15 @@ function Game() {
 
   // Chip styling helper functions
   const getChipBackgroundColor = (chipColor) => {
-    switch (chipColor) {
-      case 'white': return '#f8f9fa';
-      case 'yellow': return '#fff3cd';
-      case 'orange': return '#ffeaa7';
-      case 'red': return '#f8d7da';
-      default: return '#f8f9fa';
-    }
+    return chipColors.backgrounds[chipColor] || chipColors.backgrounds.white;
   };
 
   const getChipBorderColor = (chipColor) => {
-    switch (chipColor) {
-      case 'white': return '#6c757d';
-      case 'yellow': return '#e0a800';
-      case 'orange': return '#d67010';
-      case 'red': return '#b02a37';
-      default: return '#6c757d';
-    }
+    return chipColors.borders[chipColor] || chipColors.borders.white;
   };
 
   const getChipTextColor = (chipColor) => {
-    switch (chipColor) {
-      case 'white': return '#343a40';
-      case 'yellow': return '#856404';
-      case 'orange': return '#974c0f';
-      case 'red': return '#721c24';
-      default: return '#343a40';
-    }
+    return chipColors.text[chipColor] || chipColors.text.white;
   };
 
   const getChipStyle = (chipColor, size = 30) => ({
