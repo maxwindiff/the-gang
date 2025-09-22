@@ -700,19 +700,132 @@ function Game() {
             </div>
           </div>
 
+          {/* Scoring Results */}
+          {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring && (
+            <div style={{
+              marginBottom: '2rem',
+              padding: '2rem',
+              backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
+              border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`,
+              borderRadius: '8px'
+            }}>
+              <h2 style={{ 
+                textAlign: 'center', 
+                color: roomData.poker_game.scoring.win ? '#155724' : '#721c24',
+                marginBottom: '1.5rem'
+              }}>
+                {roomData.poker_game.scoring.win ? '🎉 TEAM VICTORY! 🎉' : '💔 TEAM DEFEAT 💔'}
+              </h2>
+              
+              {/* Player Rankings */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>Final Rankings (Weakest to Strongest)</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {roomData.poker_game.scoring.ranked_players.map(([player, hand], index) => {
+                    const redChip = roomData.poker_game.scoring.red_chip_assignments[player];
+                    const isCorrectPosition = redChip === index + 1;
+                    
+                    return (
+                      <div key={player} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        backgroundColor: 'white',
+                        border: `2px solid ${isCorrectPosition ? '#28a745' : '#dc3545'}`,
+                        borderRadius: '4px'
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <strong>#{index + 1}: {player}</strong>
+                          {player === playerName && ' (You)'}
+                        </div>
+                        <div style={{ flex: 2, textAlign: 'center' }}>
+                          <div><strong>{hand.rank_display}</strong></div>
+                          <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                            {hand.cards.map((card, i) => (
+                              <span key={i} style={{ 
+                                marginRight: '0.25rem',
+                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black'
+                              }}>
+                                {card.rank_str}{card.suit[0].toUpperCase()}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'right' }}>
+                          <span style={{
+                            padding: '0.25rem 0.5rem',
+                            backgroundColor: '#dc3545',
+                            color: 'white',
+                            borderRadius: '50%',
+                            fontSize: '0.9rem'
+                          }}>
+                            Red #{redChip}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Individual Player Hands */}
+              <div>
+                <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>All Player Hands</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+                  {Object.entries(roomData.poker_game.scoring.player_hands).map(([player, hand]) => (
+                    <div key={player} style={{
+                      padding: '1rem',
+                      backgroundColor: 'white',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      textAlign: 'center'
+                    }}>
+                      <h4>{player}{player === playerName && ' (You)'}</h4>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <strong>{hand.rank_display}</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {hand.cards.map((card, i) => (
+                          <div key={i} style={{
+                            padding: '0.25rem 0.5rem',
+                            backgroundColor: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '0.9rem',
+                            color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black'
+                          }}>
+                            {card.rank_str}
+                            <span style={{ fontSize: '0.8rem' }}>
+                              {card.suit === 'hearts' ? '♥' : 
+                               card.suit === 'diamonds' ? '♦' : 
+                               card.suit === 'clubs' ? '♣' : '♠'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Game Status */}
-          <div style={{ 
-            textAlign: 'center',
-            padding: '0.5rem',
-            backgroundColor: roomData.poker_game.all_players_have_chip ? '#d4edda' : '#fff3cd',
-            border: `1px solid ${roomData.poker_game.all_players_have_chip ? '#c3e6cb' : '#ffeaa7'}`,
-            borderRadius: '4px',
-            marginBottom: '1rem'
-          }}>
-            {roomData.poker_game.all_players_have_chip ? 
-              '✅ All players have chips! Ready to advance.' : 
-              '⏳ Waiting for all players to get chips...'}
-          </div>
+          {roomData.poker_game.round !== 'scoring' && (
+            <div style={{ 
+              textAlign: 'center',
+              padding: '0.5rem',
+              backgroundColor: roomData.poker_game.all_players_have_chip ? '#d4edda' : '#fff3cd',
+              border: `1px solid ${roomData.poker_game.all_players_have_chip ? '#c3e6cb' : '#ffeaa7'}`,
+              borderRadius: '4px',
+              marginBottom: '1rem'
+            }}>
+              {roomData.poker_game.all_players_have_chip ? 
+                '✅ All players have chips! Ready to advance.' : 
+                '⏳ Waiting for all players to get chips...'}
+            </div>
+          )}
         </div>
       ) : (
         <div>Loading game data...</div>

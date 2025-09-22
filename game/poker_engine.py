@@ -2,6 +2,7 @@ import random
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 import logging
+from .poker_scoring import find_best_hand, check_cooperative_win, format_hand_for_display
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,9 @@ class PokerGame:
         # Chip management
         self.available_chips: Dict[ChipColor, List[int]] = {}
         self.player_chips: Dict[str, Dict[ChipColor, Optional[int]]] = {}
+        
+        # Scoring data
+        self.scoring_results = None
         
         # Initialize player data
         for player in players:
@@ -247,10 +251,45 @@ class PokerGame:
             return self.start_river()
         elif self.current_round == GameRound.RIVER:
             self.current_round = GameRound.SCORING
+            self._calculate_scoring()
             logger.info("Advanced to scoring phase")
             return True
         
         return False
+    
+    def _calculate_scoring(self):
+        """Calculate scoring results for the game"""
+        if len(self.community_cards) != 5:
+            logger.error("Cannot calculate scoring without 5 community cards")
+            return
+        
+        # Find best hand for each player
+        player_hands = {}
+        for player in self.players:
+            all_cards = self.pocket_cards[player] + self.community_cards
+            best_hand = find_best_hand(all_cards)
+            player_hands[player] = best_hand
+            logger.info(f"{player}'s best hand: {best_hand}")
+        
+        # Get red chip assignments
+        red_chips = {}
+        for player in self.players:
+            red_chip = self.player_chips[player][ChipColor.RED]
+            if red_chip is not None:
+                red_chips[player] = red_chip
+        
+        # Check cooperative win condition
+        win_status, ranked_players, chip_assignments = check_cooperative_win(player_hands, red_chips)
+        
+        # Store scoring results
+        self.scoring_results = {
+            'win': win_status,
+            'player_hands': {player: format_hand_for_display(hand) for player, hand in player_hands.items()},
+            'ranked_players': [(player, format_hand_for_display(hand)) for player, hand in ranked_players],
+            'red_chip_assignments': chip_assignments
+        }
+        
+        logger.info(f"Scoring complete: {'WIN' if win_status else 'LOSS'}")
     
     def to_dict(self, player_perspective: Optional[str] = None) -> Dict:
         """Convert game state to dictionary for JSON serialization"""
@@ -286,7 +325,7 @@ class PokerGame:
                 if chip_num is not None:
                     chip_history[player][color.value] = chip_num
         
-        return {
+        result = {
             'round': self.current_round.value,
             'players': self.players,
             'community_cards': community_cards_data,
@@ -298,3 +337,9 @@ class PokerGame:
             'all_players_have_chip': self.all_players_have_chip(),
             'can_advance': self.can_advance_round()
         }
+        
+        # Add scoring results if in scoring phase
+        if self.current_round == GameRound.SCORING and self.scoring_results:
+            result['scoring'] = self.scoring_results
+        
+        return result

@@ -10,6 +10,7 @@ from django.test.client import Client
 from .consumers import GameConsumer
 from .room_manager import room_manager, GameRoom, RoomState
 from .poker_engine import PokerGame, Card, Suit, GameRound, ChipColor
+from .poker_scoring import PokerHand, HandRank, find_best_hand, check_cooperative_win
 
 
 class RoomManagerTestCase(TestCase):
@@ -569,3 +570,171 @@ class IntegrationTestCase(TestCase):
         self.assertEqual(room.state, RoomState.STARTED)
         self.assertIsNotNone(room.poker_game)
         self.assertEqual(room.poker_game.current_round, GameRound.PREFLOP)
+
+
+class PokerScoringTestCase(TestCase):
+    def test_royal_flush(self):
+        royal_flush = [
+            Card(14, Suit.HEARTS), Card(13, Suit.HEARTS), Card(12, Suit.HEARTS),
+            Card(11, Suit.HEARTS), Card(10, Suit.HEARTS)
+        ]
+        hand = PokerHand(royal_flush)
+        self.assertEqual(hand.rank, HandRank.ROYAL_FLUSH)
+
+    def test_straight_flush(self):
+        straight_flush = [
+            Card(9, Suit.SPADES), Card(8, Suit.SPADES), Card(7, Suit.SPADES),
+            Card(6, Suit.SPADES), Card(5, Suit.SPADES)
+        ]
+        hand = PokerHand(straight_flush)
+        self.assertEqual(hand.rank, HandRank.STRAIGHT_FLUSH)
+
+    def test_four_of_a_kind(self):
+        four_kind = [
+            Card(7, Suit.HEARTS), Card(7, Suit.DIAMONDS), Card(7, Suit.CLUBS),
+            Card(7, Suit.SPADES), Card(2, Suit.HEARTS)
+        ]
+        hand = PokerHand(four_kind)
+        self.assertEqual(hand.rank, HandRank.FOUR_OF_A_KIND)
+
+    def test_full_house(self):
+        full_house = [
+            Card(9, Suit.HEARTS), Card(9, Suit.DIAMONDS), Card(9, Suit.CLUBS),
+            Card(4, Suit.SPADES), Card(4, Suit.HEARTS)
+        ]
+        hand = PokerHand(full_house)
+        self.assertEqual(hand.rank, HandRank.FULL_HOUSE)
+
+    def test_flush(self):
+        flush = [
+            Card(12, Suit.DIAMONDS), Card(9, Suit.DIAMONDS), Card(7, Suit.DIAMONDS),
+            Card(5, Suit.DIAMONDS), Card(3, Suit.DIAMONDS)
+        ]
+        hand = PokerHand(flush)
+        self.assertEqual(hand.rank, HandRank.FLUSH)
+
+    def test_straight(self):
+        straight = [
+            Card(10, Suit.HEARTS), Card(9, Suit.DIAMONDS), Card(8, Suit.CLUBS),
+            Card(7, Suit.SPADES), Card(6, Suit.HEARTS)
+        ]
+        hand = PokerHand(straight)
+        self.assertEqual(hand.rank, HandRank.STRAIGHT)
+
+    def test_wheel_straight(self):
+        wheel = [
+            Card(14, Suit.HEARTS), Card(2, Suit.DIAMONDS), Card(3, Suit.CLUBS),
+            Card(4, Suit.SPADES), Card(5, Suit.HEARTS)
+        ]
+        hand = PokerHand(wheel)
+        self.assertEqual(hand.rank, HandRank.STRAIGHT)
+
+    def test_three_of_a_kind(self):
+        three_kind = [
+            Card(8, Suit.HEARTS), Card(8, Suit.DIAMONDS), Card(8, Suit.CLUBS),
+            Card(5, Suit.SPADES), Card(3, Suit.HEARTS)
+        ]
+        hand = PokerHand(three_kind)
+        self.assertEqual(hand.rank, HandRank.THREE_OF_A_KIND)
+
+    def test_two_pair(self):
+        two_pair = [
+            Card(9, Suit.HEARTS), Card(9, Suit.DIAMONDS), Card(6, Suit.CLUBS),
+            Card(6, Suit.SPADES), Card(3, Suit.HEARTS)
+        ]
+        hand = PokerHand(two_pair)
+        self.assertEqual(hand.rank, HandRank.TWO_PAIR)
+
+    def test_one_pair(self):
+        one_pair = [
+            Card(10, Suit.HEARTS), Card(10, Suit.DIAMONDS), Card(8, Suit.CLUBS),
+            Card(5, Suit.SPADES), Card(2, Suit.HEARTS)
+        ]
+        hand = PokerHand(one_pair)
+        self.assertEqual(hand.rank, HandRank.ONE_PAIR)
+
+    def test_high_card(self):
+        high_card = [
+            Card(13, Suit.HEARTS), Card(11, Suit.DIAMONDS), Card(9, Suit.CLUBS),
+            Card(6, Suit.SPADES), Card(2, Suit.HEARTS)
+        ]
+        hand = PokerHand(high_card)
+        self.assertEqual(hand.rank, HandRank.HIGH_CARD)
+
+    def test_best_hand_selection(self):
+        seven_cards = [
+            Card(14, Suit.HEARTS), Card(12, Suit.HEARTS), Card(9, Suit.HEARTS),
+            Card(7, Suit.HEARTS), Card(5, Suit.HEARTS), Card(3, Suit.CLUBS), Card(2, Suit.DIAMONDS)
+        ]
+        best_hand = find_best_hand(seven_cards)
+        self.assertEqual(best_hand.rank, HandRank.FLUSH)
+
+    def test_hand_comparison(self):
+        royal_flush = PokerHand([
+            Card(14, Suit.HEARTS), Card(13, Suit.HEARTS), Card(12, Suit.HEARTS),
+            Card(11, Suit.HEARTS), Card(10, Suit.HEARTS)
+        ])
+        
+        pair_of_aces = PokerHand([
+            Card(14, Suit.HEARTS), Card(14, Suit.DIAMONDS), Card(12, Suit.CLUBS),
+            Card(7, Suit.SPADES), Card(3, Suit.HEARTS)
+        ])
+        
+        self.assertTrue(royal_flush > pair_of_aces)
+        self.assertFalse(pair_of_aces > royal_flush)
+
+    def test_cooperative_scoring_win(self):
+        players = ['alice', 'bob', 'charlie']
+        
+        # Create hands: alice weakest, bob strongest
+        alice_hand = PokerHand([Card(7, Suit.HEARTS), Card(7, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(5, Suit.SPADES), Card(3, Suit.HEARTS)])
+        bob_hand = PokerHand([Card(14, Suit.HEARTS), Card(14, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(7, Suit.SPADES), Card(3, Suit.HEARTS)]) 
+        charlie_hand = PokerHand([Card(10, Suit.HEARTS), Card(10, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(7, Suit.SPADES), Card(3, Suit.HEARTS)])
+        
+        player_hands = {'alice': alice_hand, 'bob': bob_hand, 'charlie': charlie_hand}
+        red_chips = {'alice': 1, 'charlie': 2, 'bob': 3}  # Correct assignment
+        
+        win, ranked_players, chip_assignments = check_cooperative_win(player_hands, red_chips)
+        self.assertTrue(win)
+
+    def test_cooperative_scoring_loss(self):
+        players = ['alice', 'bob', 'charlie']
+        
+        alice_hand = PokerHand([Card(7, Suit.HEARTS), Card(7, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(5, Suit.SPADES), Card(3, Suit.HEARTS)])
+        bob_hand = PokerHand([Card(14, Suit.HEARTS), Card(14, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(7, Suit.SPADES), Card(3, Suit.HEARTS)]) 
+        charlie_hand = PokerHand([Card(10, Suit.HEARTS), Card(10, Suit.DIAMONDS), Card(12, Suit.CLUBS), Card(7, Suit.SPADES), Card(3, Suit.HEARTS)])
+        
+        player_hands = {'alice': alice_hand, 'bob': bob_hand, 'charlie': charlie_hand}
+        red_chips = {'alice': 3, 'charlie': 1, 'bob': 2}  # Wrong assignment
+        
+        win, ranked_players, chip_assignments = check_cooperative_win(player_hands, red_chips)
+        self.assertFalse(win)
+
+    def test_scoring_integration(self):
+        players = ['alice', 'bob', 'charlie']
+        game = PokerGame(players)
+        
+        # Set up hands and advance to river
+        for player in players:
+            game.player_chips[player][ChipColor.WHITE] = 1
+            game.player_chips[player][ChipColor.YELLOW] = 1
+            game.player_chips[player][ChipColor.ORANGE] = 1
+        
+        game.advance_round()  # To flop
+        game.advance_round()  # To turn  
+        game.advance_round()  # To river
+        
+        # Assign red chips
+        game.player_chips['alice'][ChipColor.RED] = 1
+        game.player_chips['bob'][ChipColor.RED] = 2
+        game.player_chips['charlie'][ChipColor.RED] = 3
+        
+        # Advance to scoring
+        success = game.advance_round()
+        
+        self.assertTrue(success)
+        self.assertEqual(game.current_round, GameRound.SCORING)
+        self.assertIsNotNone(game.scoring_results)
+        self.assertIn('win', game.scoring_results)
+        self.assertIn('player_hands', game.scoring_results)
+        self.assertIn('ranked_players', game.scoring_results)
