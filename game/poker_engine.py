@@ -105,53 +105,38 @@ class PokerGame:
         
         logger.info(f"Started pre-flop round with {self.num_players} players")
     
-    def start_flop(self):
-        """Start the flop round"""
-        if self.current_round != GameRound.PREFLOP:
+    def _advance_to_round(self, target_round: GameRound, expected_current: GameRound, 
+                         chip_color: ChipColor, cards_to_deal: int = 0) -> bool:
+        """Helper method to advance to a specific round"""
+        if self.current_round != expected_current:
             return False
         
-        self.current_round = GameRound.FLOP
+        self.current_round = target_round
         
-        # Deal 3 community cards
-        self.community_cards = [self.deck.deal(), self.deck.deal(), self.deck.deal()]
+        # Deal community cards
+        for _ in range(cards_to_deal):
+            self.community_cards.append(self.deck.deal())
         
-        # Place yellow chips 1 to N in public area
-        self.available_chips[ChipColor.YELLOW] = list(range(1, self.num_players + 1))
+        # Place chips in public area
+        self.available_chips[chip_color] = list(range(1, self.num_players + 1))
         
-        logger.info(f"Started flop round with community cards: {[str(c) for c in self.community_cards]}")
+        logger.info(f"Started {target_round.value} round, total community cards: {len(self.community_cards)}")
         return True
+
+    def start_flop(self):
+        """Start the flop round"""
+        # Deal 3 community cards initially
+        if self.current_round == GameRound.PREFLOP:
+            self.community_cards = [self.deck.deal(), self.deck.deal(), self.deck.deal()]
+        return self._advance_to_round(GameRound.FLOP, GameRound.PREFLOP, ChipColor.YELLOW, 0)
     
     def start_turn(self):
         """Start the turn round"""
-        if self.current_round != GameRound.FLOP:
-            return False
-        
-        self.current_round = GameRound.TURN
-        
-        # Deal 1 more community card
-        self.community_cards.append(self.deck.deal())
-        
-        # Place orange chips 1 to N in public area
-        self.available_chips[ChipColor.ORANGE] = list(range(1, self.num_players + 1))
-        
-        logger.info(f"Started turn round, total community cards: {len(self.community_cards)}")
-        return True
+        return self._advance_to_round(GameRound.TURN, GameRound.FLOP, ChipColor.ORANGE, 1)
     
     def start_river(self):
         """Start the river round"""
-        if self.current_round != GameRound.TURN:
-            return False
-        
-        self.current_round = GameRound.RIVER
-        
-        # Deal 1 more community card
-        self.community_cards.append(self.deck.deal())
-        
-        # Place red chips 1 to N in public area
-        self.available_chips[ChipColor.RED] = list(range(1, self.num_players + 1))
-        
-        logger.info(f"Started river round, total community cards: {len(self.community_cards)}")
-        return True
+        return self._advance_to_round(GameRound.RIVER, GameRound.TURN, ChipColor.RED, 1)
     
     def get_current_chip_color(self) -> Optional[ChipColor]:
         """Get the chip color for the current round"""
@@ -163,23 +148,30 @@ class PokerGame:
         }
         return chip_map.get(self.current_round)
     
-    def take_chip_from_public(self, player: str, chip_number: int) -> bool:
-        """Player takes a chip from the public area"""
-        chip_color = self.get_current_chip_color()
-        if not chip_color:
-            return False
-        
-        if chip_number not in self.available_chips[chip_color]:
-            return False
-        
-        # Return current chip to public if player has one
+    def _return_player_chip_to_public(self, player: str, chip_color: ChipColor) -> Optional[int]:
+        """Helper to return a player's current chip to public area"""
         current_chip = self.player_chips[player][chip_color]
         if current_chip is not None:
             self.available_chips[chip_color].append(current_chip)
+            self.player_chips[player][chip_color] = None
+        return current_chip
+
+    def _assign_chip_to_player(self, player: str, chip_color: ChipColor, chip_number: int):
+        """Helper to assign a chip to a player"""
+        self.player_chips[player][chip_color] = chip_number
+
+    def take_chip_from_public(self, player: str, chip_number: int) -> bool:
+        """Player takes a chip from the public area"""
+        chip_color = self.get_current_chip_color()
+        if not chip_color or chip_number not in self.available_chips[chip_color]:
+            return False
+        
+        # Return current chip to public if player has one
+        self._return_player_chip_to_public(player, chip_color)
         
         # Take new chip
         self.available_chips[chip_color].remove(chip_number)
-        self.player_chips[player][chip_color] = chip_number
+        self._assign_chip_to_player(player, chip_color, chip_number)
         
         logger.info(f"{player} took {chip_color.value} chip {chip_number}")
         return True
@@ -195,13 +187,11 @@ class PokerGame:
             return False
         
         # Return taking player's current chip to public if they have one
-        current_chip = self.player_chips[taking_player][chip_color]
-        if current_chip is not None:
-            self.available_chips[chip_color].append(current_chip)
+        self._return_player_chip_to_public(taking_player, chip_color)
         
         # Transfer chip
         self.player_chips[target_player][chip_color] = None
-        self.player_chips[taking_player][chip_color] = target_chip
+        self._assign_chip_to_player(taking_player, chip_color, target_chip)
         
         logger.info(f"{taking_player} took {chip_color.value} chip {target_chip} from {target_player}")
         return True
@@ -212,15 +202,11 @@ class PokerGame:
         if not chip_color:
             return False
         
-        current_chip = self.player_chips[player][chip_color]
-        if current_chip is None:
+        returned_chip = self._return_player_chip_to_public(player, chip_color)
+        if returned_chip is None:
             return False
         
-        # Return chip to public
-        self.available_chips[chip_color].append(current_chip)
-        self.player_chips[player][chip_color] = None
-        
-        logger.info(f"{player} returned {chip_color.value} chip {current_chip} to public")
+        logger.info(f"{player} returned {chip_color.value} chip {returned_chip} to public")
         return True
     
     def all_players_have_chip(self) -> bool:

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE = 'http://localhost:8000';
+import { API_BASE, commonStyles, buttonColors } from '../utils/constants';
 
 function Landing() {
   const [playerName, setPlayerName] = useState('');
@@ -70,12 +69,7 @@ function Landing() {
             type="text"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem', 
-              fontSize: '1rem',
-              marginBottom: '0.5rem'
-            }}
+            style={commonStyles.input}
             maxLength="20"
             required
           />
@@ -90,25 +84,14 @@ function Landing() {
             type="text"
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem', 
-              fontSize: '1rem',
-              marginBottom: '0.5rem'
-            }}
+            style={commonStyles.input}
             maxLength="20"
             required
           />
         </div>
 
         {error && (
-          <div style={{ 
-            color: 'red', 
-            marginBottom: '1rem',
-            padding: '0.5rem',
-            border: '1px solid red',
-            borderRadius: '4px'
-          }}>
+          <div style={commonStyles.errorBox}>
             {error}
           </div>
         )}
@@ -117,13 +100,9 @@ function Landing() {
           type="submit"
           disabled={loading}
           style={{
+            ...commonStyles.button,
             width: '100%',
-            padding: '0.75rem',
-            fontSize: '1rem',
-            backgroundColor: loading ? '#ccc' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
+            backgroundColor: loading ? '#ccc' : buttonColors.primary,
             cursor: loading ? 'not-allowed' : 'pointer'
           }}
         >

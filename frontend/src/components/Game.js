@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-const WS_BASE = 'ws://localhost:8000';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { statusColors } from '../utils/constants';
 
 function Game() {
   const { roomName, playerName } = useParams();
   const navigate = useNavigate();
   const [roomData, setRoomData] = useState(null);
-  const [connectionStatus, setConnectionStatus] = useState('connecting');
-  const [error, setError] = useState('');
-  const ws = useRef(null);
-  const isClosing = useRef(false);
 
   // Chip styling helper functions
   const getChipBackgroundColor = (chipColor) => {
@@ -101,97 +97,34 @@ function Game() {
     }
   };
 
-  useEffect(() => {
-    const connectWebSocket = () => {
-      ws.current = new WebSocket(`${WS_BASE}/ws/game/${roomName}/${playerName}/`);
+  const handleMessage = useCallback((data) => {
+    switch (data.type) {
+      case 'room_update':
+      case 'game_started':
+      case 'game_update':
+      case 'game_ended':
+        setRoomData(data.room_data);
+        break;
+      case 'error':
+        setError(data.message);
+        break;
+      default:
+        console.log('Unknown message type:', data.type);
+    }
+  }, []);
 
-      ws.current.onopen = () => {
-        console.log('Game WebSocket connected');
-        setConnectionStatus('connected');
-        setError('');
-        isClosing.current = false;
-      };
-
-      ws.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Game WebSocket message:', data);
-
-          switch (data.type) {
-            case 'room_update':
-              setRoomData(data.room_data);
-              break;
-            case 'game_started':
-              setRoomData(data.room_data);
-              break;
-            case 'game_update':
-              setRoomData(data.room_data);
-              break;
-            case 'game_ended':
-              setRoomData(data.room_data);
-              break;
-            case 'error':
-              setError(data.message);
-              break;
-            default:
-              console.log('Unknown message type:', data.type);
-          }
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
-        }
-      };
-
-      ws.current.onclose = (event) => {
-        console.log('Game WebSocket closed:', event.code, event.reason);
-        setConnectionStatus('disconnected');
-        
-        if (event.code !== 1000) {
-          setTimeout(connectWebSocket, 3000);
-        }
-      };
-
-      ws.current.onerror = (event) => {
-        console.error('Game WebSocket error:', event);
-        setConnectionStatus('error');
-        setError('Connection error occurred');
-      };
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (ws.current && !isClosing.current) {
-        try {
-          // Only close if WebSocket is in OPEN or CONNECTING state and not already closing
-          if (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING) {
-            isClosing.current = true;
-            ws.current.close(1001, 'Component unmounting');
-          }
-        } catch (error) {
-          console.log('WebSocket close error (safe to ignore):', error);
-        }
-      }
-    };
-  }, [roomName, playerName]);
+  const { connectionStatus, error, setError, sendMessage } = useWebSocket(roomName, playerName, handleMessage);
 
   const handleEndGame = () => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ type: 'end_game' }));
-      }
-    } catch (error) {
-      console.log('Error ending game:', error);
+    const success = sendMessage({ type: 'end_game' });
+    if (!success) {
       setError('Failed to end game. Please try again.');
     }
   };
 
   const handleRestartGame = () => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ type: 'restart_game' }));
-      }
-    } catch (error) {
-      console.log('Error restarting game:', error);
+    const success = sendMessage({ type: 'restart_game' });
+    if (!success) {
       setError('Failed to restart game. Please try again.');
     }
   };
@@ -201,64 +134,39 @@ function Game() {
   };
 
   const handleTakeChipFromPublic = (chipNumber) => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ 
-          type: 'take_chip_public', 
-          chip_number: chipNumber 
-        }));
-      }
-    } catch (error) {
-      console.log('Error taking chip from public:', error);
+    const success = sendMessage({ 
+      type: 'take_chip_public', 
+      chip_number: chipNumber 
+    });
+    if (!success) {
       setError('Failed to take chip. Please try again.');
     }
   };
 
   const handleTakeChipFromPlayer = (targetPlayer) => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ 
-          type: 'take_chip_player', 
-          target_player: targetPlayer 
-        }));
-      }
-    } catch (error) {
-      console.log('Error taking chip from player:', error);
+    const success = sendMessage({ 
+      type: 'take_chip_player', 
+      target_player: targetPlayer 
+    });
+    if (!success) {
       setError('Failed to take chip. Please try again.');
     }
   };
 
   const handleReturnChip = () => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ type: 'return_chip' }));
-      }
-    } catch (error) {
-      console.log('Error returning chip:', error);
+    const success = sendMessage({ type: 'return_chip' });
+    if (!success) {
       setError('Failed to return chip. Please try again.');
     }
   };
 
   const handleAdvanceRound = () => {
-    try {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ type: 'advance_round' }));
-      }
-    } catch (error) {
-      console.log('Error advancing round:', error);
+    const success = sendMessage({ type: 'advance_round' });
+    if (!success) {
       setError('Failed to advance round. Please try again.');
     }
   };
 
-  const getConnectionStatusColor = () => {
-    switch (connectionStatus) {
-      case 'connected': return '#28a745';
-      case 'connecting': return '#ffc107';
-      case 'disconnected': return '#dc3545';
-      case 'error': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
 
 
   return (
@@ -282,7 +190,7 @@ function Game() {
                 width: '10px', 
                 height: '10px', 
                 borderRadius: '50%', 
-                backgroundColor: getConnectionStatusColor() 
+                backgroundColor: statusColors[connectionStatus] || statusColors.default 
               }}
             />
             {connectionStatus}

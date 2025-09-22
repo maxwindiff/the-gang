@@ -189,3 +189,9 @@ the styling of the chips in the public area and bidding table are inconsistent. 
 actually, let use an even darker shade of the color for the text (instead of black)
 
 ========
+
+look for opportunities to refactor and simplify the code, without changing behavior.
+
+look for more opportunities, in both frontend and backend
+
+========
