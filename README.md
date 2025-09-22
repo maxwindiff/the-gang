@@ -2,6 +2,8 @@
 
 A real-time multiplayer cooperative poker variant where players work together to predict hand strengths.
 
+![Screenshot](static/screenshot.jpg)
+
 ## Setup
 
 ### Backend (Django ASGI)
