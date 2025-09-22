@@ -158,5 +158,6 @@ hide the "📈 Bidding History (All Rounds)" caption
 
 layout the community cards and pocket cards side by side (pocket cards on the left), in the order to save some vertical space
 
+slightly reduce vertical spacing between sections to save more vertical space
 
 ========

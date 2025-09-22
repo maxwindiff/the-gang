@@ -178,7 +178,7 @@ function Game() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '2rem'
+        marginBottom: '1.5rem'
       }}>
         <h1>Game in Progress - Room: {roomName}</h1>
         <div style={{ 
@@ -238,14 +238,14 @@ function Game() {
             <div style={{ 
               display: 'flex',
               gap: '1rem',
-              marginBottom: '2rem',
+              marginBottom: '1.5rem',
               flexWrap: 'wrap'
             }}>
               {/* Pocket Cards */}
               {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
                 <div style={{ 
                   flex: '0 0 auto',
-                  padding: '1rem',
+                  padding: '0.75rem',
                   backgroundColor: '#fff3cd',
                   borderRadius: '8px',
                   textAlign: 'center'
@@ -272,7 +272,7 @@ function Game() {
               {roomData.poker_game.community_cards.length > 0 && (
                 <div style={{ 
                   flex: '1',
-                  padding: '1rem',
+                  padding: '0.75rem',
                   backgroundColor: '#e8f5e8',
                   borderRadius: '8px',
                   textAlign: 'center'
@@ -299,8 +299,8 @@ function Game() {
 
           {/* Available Chips */}
           <div style={{ 
-            marginBottom: '2rem',
-            padding: '1rem',
+            marginBottom: '1.5rem',
+            padding: '0.75rem',
             backgroundColor: '#f8f9fa',
             borderRadius: '8px'
           }}>
@@ -333,7 +333,7 @@ function Game() {
                   textAlign: 'center',
                   color: '#6c757d',
                   fontStyle: 'italic',
-                  padding: '1rem',
+                  padding: '0.75rem',
                   width: '100%'
                 }}>
                   All chips have been taken
@@ -362,8 +362,8 @@ function Game() {
 
           {/* Bidding History - All Players and All Rounds */}
           <div style={{ 
-            marginBottom: '2rem',
-            padding: '1rem',
+            marginBottom: '1.5rem',
+            padding: '0.75rem',
             backgroundColor: '#e7f3ff',
             borderRadius: '8px'
           }}>
@@ -616,8 +616,8 @@ function Game() {
           {roomData.poker_game.round === 'scoring' && (
             <div style={{ 
               textAlign: 'center',
-              marginBottom: '2rem',
-              padding: '1rem',
+              marginBottom: '1.5rem',
+              padding: '0.75rem',
               backgroundColor: '#f8f9fa',
               borderRadius: '8px'
             }}>
@@ -657,7 +657,7 @@ function Game() {
           {/* Scoring Results */}
           {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring && (
             <div style={{
-              marginBottom: '2rem',
+              marginBottom: '1.5rem',
               padding: '2rem',
               backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
               border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`,
@@ -672,7 +672,7 @@ function Game() {
               </h2>
               
               {/* Player Rankings */}
-              <div style={{ marginBottom: '2rem' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
                 <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>Final Rankings (Weakest to Strongest)</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {roomData.poker_game.scoring.ranked_players.map(([player, hand], index) => {
@@ -684,7 +684,7 @@ function Game() {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        padding: '1rem',
+                        padding: '0.75rem',
                         backgroundColor: 'white',
                         border: `2px solid ${isCorrectPosition ? '#28a745' : '#dc3545'}`,
                         borderRadius: '4px'
