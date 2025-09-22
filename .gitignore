@@ -261,3 +261,39 @@ logs
 # Temporary files
 *.tmp
 *.temp
+
+# Playwright
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/blob-report/
+/frontend/playwright/.cache/
+
+# React build files
+/frontend/build/
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package lock files (optional - uncomment if you want to ignore them)
+# package-lock.json
+# yarn.lock
+
+# Static media files (if generated)
+/static/
+/media/
+
+# Django migrations (optional - uncomment if you want to ignore migrations)
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Dependency check files
+.npmrc
+.yarnrc

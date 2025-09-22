@@ -195,3 +195,9 @@ look for opportunities to refactor and simplify the code, without changing behav
 look for more opportunities, in both frontend and backend
 
 ========
+
+come up with a way to test the application end to end using headless browsers
+
+update .gitignore
+
+========
