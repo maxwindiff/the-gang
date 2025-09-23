@@ -15,9 +15,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.generic import TemplateView
+from django.conf import settings
+from django.views.static import serve
+from django.http import HttpResponse
+import mimetypes
+import os
+
+def serve_static(request, path):
+    document_root = settings.BASE_DIR / 'frontend' / 'build' / 'static'
+    full_path = os.path.join(document_root, path)
+    
+    if os.path.exists(full_path):
+        mime_type, _ = mimetypes.guess_type(full_path)
+        with open(full_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type=mime_type)
+            return response
+    else:
+        return HttpResponse(status=404)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('game.urls')),
+    path('api/', include('game.urls')),
+    re_path(r'^static/(?P<path>.*)$', serve_static),
+    path('', TemplateView.as_view(template_name='index.html'), name='frontend'),
 ]

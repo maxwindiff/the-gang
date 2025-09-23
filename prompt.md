@@ -201,3 +201,9 @@ come up with a way to test the application end to end using headless browsers
 update .gitignore
 
 ========
+
+try to proxy the react backend behind the django server, so that the browser only need to connect to on address. also replace the hardcoded localhost:3000 or localhost:8000 with relative urls.
+
+I see: [Error] Refused to execute http://localhost:8000/static/js/main.a3856546.js as script because "X-Content-Type-Options: nosniff" was given and its Content-Type is not a script MIME type.
+
+========

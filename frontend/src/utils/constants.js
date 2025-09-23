@@ -1,6 +1,6 @@
 // API and WebSocket configuration
-export const API_BASE = 'http://localhost:8000';
-export const WS_BASE = 'ws://localhost:8000';
+export const API_BASE = '/api';
+export const WS_BASE = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
 
 // Chip colors
 export const chipColors = {
