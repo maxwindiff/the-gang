@@ -6,7 +6,7 @@ A real-time multiplayer cooperative poker variant where players work together to
 
 ## Setup
 
-### Quick Start
+### Quick Start (Production)
 
 ```bash
 # Create virtual environment
@@ -21,34 +21,76 @@ cd frontend
 npm install
 cd ..
 
-# Start the server (builds frontend and serves everything on port 8000)
-./start_servers.sh
+# Start production server (builds frontend and serves everything on port 80)
+sudo ./start_servers.sh
 ```
 
-### Manual Setup
+### Development Mode (Hot Reloading)
 
 ```bash
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Install backend dependencies
 pip install -r requirements.txt
 
-# Install frontend dependencies and build
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Start development servers (Django on 8000, React on 3000)
+./start_dev.sh
+```
+
+### Manual Setup
+
+**Production:**
+```bash
+# Create virtual environment and install dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Build frontend
 cd frontend
 npm install
 npm run build
 cd ..
 
-# Start Django server (serves both API and frontend)
+# Start Django server (serves both API and frontend on port 80)
+sudo daphne -b 0.0.0.0 -p 80 thegang.asgi:application
+```
+
+**Development:**
+```bash
+# Create virtual environment and install dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Start Django backend (port 8000)
 daphne -b 0.0.0.0 -p 8000 thegang.asgi:application
+
+# In another terminal, start React frontend (port 3000)
+cd frontend && npm start
 ```
 
 ### Usage
 
-1. Run `./start_servers.sh` or follow manual setup above
-2. Open http://localhost:8000 in your browser
+**Production Mode:**
+1. Run `sudo ./start_servers.sh`
+2. Open http://localhost in your browser
+
+**Development Mode:**
+1. Run `./start_dev.sh`
+2. Open http://localhost:3000 in your browser (with hot reloading)
 3. Enter your player name and room name
 4. Wait for other players to join (3-6 players needed)
 5. Any player can start the game when enough players are present

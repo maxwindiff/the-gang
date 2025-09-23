@@ -212,4 +212,6 @@ change python server to listen on all IPs
 
 no need to log API endpoint and WebSocket urls in the script
 
+bring back a dev mode which supports hot reloading using the react/webpack server. so we can choose to start the server in prod or dev mode.
+
 ========
