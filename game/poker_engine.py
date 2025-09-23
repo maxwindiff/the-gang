@@ -267,10 +267,21 @@ class PokerGame:
         # Check cooperative win condition
         win_status, ranked_players, chip_assignments = check_cooperative_win(player_hands, red_chips)
         
-        # Store scoring results
+        # Store scoring results with all cards for each player
+        player_all_cards = {}
+        for player in self.players:
+            all_cards = self.pocket_cards[player] + self.community_cards
+            player_all_cards[player] = {
+                'pocket_cards': [card.to_dict() for card in self.pocket_cards[player]],
+                'community_cards': [card.to_dict() for card in self.community_cards],
+                'all_cards': [card.to_dict() for card in all_cards],
+                'best_hand': format_hand_for_display(player_hands[player])
+            }
+        
         self.scoring_results = {
             'win': win_status,
             'player_hands': {player: format_hand_for_display(hand) for player, hand in player_hands.items()},
+            'player_all_cards': player_all_cards,
             'ranked_players': [(player, format_hand_for_display(hand)) for player, hand in ranked_players],
             'red_chip_assignments': chip_assignments
         }

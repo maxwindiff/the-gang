@@ -299,13 +299,21 @@ function Game() {
                     player,
                     hand,
                     actualRank: actualRankIndex + 1,
-                    redChip: roomData.poker_game.scoring.red_chip_assignments[player]
+                    redChip: roomData.poker_game.scoring.red_chip_assignments[player],
+                    allCards: roomData.poker_game.scoring.player_all_cards[player]
                   }));
                   
                   // Sort by red chip number
                   playersWithData.sort((a, b) => a.redChip - b.redChip);
                   
-                  return playersWithData.map(({ player, hand, actualRank, redChip }) => {
+                  // Helper function to check if a card is used in the best hand
+                  const isCardUsed = (card, bestHandCards) => {
+                    return bestHandCards.some(handCard => 
+                      handCard.rank === card.rank && handCard.suit === card.suit
+                    );
+                  };
+                  
+                  return playersWithData.map(({ player, hand, actualRank, redChip, allCards }) => {
                     const isCorrectPosition = redChip === actualRank;
                     
                     return (
@@ -334,26 +342,56 @@ function Game() {
                             {redChip}
                           </div>
                         </div>
-                        <div style={{ flex: 1, marginRight: '1rem' }}>
+                        <div style={{ flex: '0 0 100px', marginRight: '1rem' }}>
                           <strong>{player}</strong>
                           {player === playerName && ' (You)'}
                         </div>
-                        <div style={{ flex: 2, textAlign: 'center' }}>
+                        <div style={{ flex: 3, textAlign: 'center' }}>
                           <div style={{ marginBottom: '0.5rem' }}><strong>{hand.rank_display}</strong></div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
-                            {hand.cards.map((card, i) => (
-                              <div key={i} style={{
-                                padding: '0.25rem 0.5rem',
-                                backgroundColor: 'white',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                fontSize: '0.9rem',
-                                color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
-                                fontWeight: 'bold'
-                              }}>
-                                {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
-                              </div>
-                            ))}
+                          
+                          {/* Cards side by side */}
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', alignItems: 'flex-start' }}>
+                            {/* Pocket Cards */}
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                              {allCards.pocket_cards.map((card, i) => {
+                                const isUsed = isCardUsed(card, hand.cards);
+                                return (
+                                  <div key={`pocket-${i}`} style={{
+                                    padding: '0.25rem 0.5rem',
+                                    backgroundColor: 'white',
+                                    border: '2px solid #ffc107',
+                                    borderRadius: '4px',
+                                    fontSize: '0.9rem',
+                                    color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                    fontWeight: 'bold',
+                                    opacity: isUsed ? 1 : 0.3
+                                  }}>
+                                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {/* Community Cards */}
+                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                              {allCards.community_cards.map((card, i) => {
+                                const isUsed = isCardUsed(card, hand.cards);
+                                return (
+                                  <div key={`community-${i}`} style={{
+                                    padding: '0.25rem 0.5rem',
+                                    backgroundColor: 'white',
+                                    border: '1px solid #28a745',
+                                    borderRadius: '4px',
+                                    fontSize: '0.9rem',
+                                    color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                    fontWeight: 'bold',
+                                    opacity: isUsed ? 1 : 0.3
+                                  }}>
+                                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                         <div style={{ flex: '0 0 auto', textAlign: 'right' }}>

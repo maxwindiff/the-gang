@@ -215,3 +215,13 @@ no need to log API endpoint and WebSocket urls in the script
 bring back a dev mode which supports hot reloading using the react/webpack server. so we can choose to start the server in prod or dev mode.
 
 ========
+
+change the score table to show all pocket and community cards of each player, but dim the cards not used in the final hand
+
+undefined is not an object (evaluating 'roomData.poker_game.scoring.player_all_cards[player]')
+
+show the pocket cards and community cards side by side, reduce the width of player name
+
+remove the pocket/commmunity heading, slightly increase spacing between pocket and community cards, slightly more narrow player name
+
+========
