@@ -42,7 +42,7 @@ npm run build
 cd ..
 
 # Start Django server (serves both API and frontend)
-daphne -p 8000 thegang.asgi:application
+daphne -b 0.0.0.0 -p 8000 thegang.asgi:application
 ```
 
 ### Usage

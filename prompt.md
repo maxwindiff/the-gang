@@ -208,4 +208,8 @@ I see: [Error] Refused to execute http://localhost:8000/static/js/main.a3856546.
 
 update start server script and readme
 
+change python server to listen on all IPs
+
+no need to log API endpoint and WebSocket urls in the script
+
 ========
