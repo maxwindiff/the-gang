@@ -6,7 +6,26 @@ A real-time multiplayer cooperative poker variant where players work together to
 
 ## Setup
 
-### Backend (Django ASGI)
+### Quick Start
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install backend dependencies
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Start the server (builds frontend and serves everything on port 8000)
+./start_servers.sh
+```
+
+### Manual Setup
 
 ```bash
 # Create virtual environment
@@ -16,27 +35,20 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run Django development server with ASGI support
-daphne -p 8000 thegang.asgi:application
-```
-
-### Frontend (React)
-
-```bash
-# Navigate to frontend directory
+# Install frontend dependencies and build
 cd frontend
-
-# Install dependencies
 npm install
+npm run build
+cd ..
 
-# Start React development server
-npm start
+# Start Django server (serves both API and frontend)
+daphne -p 8000 thegang.asgi:application
 ```
 
 ### Usage
 
-1. Start both Django backend (port 8000) and React frontend (port 3000)
-2. Open http://localhost:3000 in your browser
+1. Run `./start_servers.sh` or follow manual setup above
+2. Open http://localhost:8000 in your browser
 3. Enter your player name and room name
 4. Wait for other players to join (3-6 players needed)
 5. Any player can start the game when enough players are present
