@@ -26,6 +26,9 @@ class GameConsumer(AsyncWebsocketConsumer):
             if room.state == RoomState.WAITING:
                 room.add_player(self.player_name)
         
+        # Mark player as connected
+        room_manager.connect_to_room(self.room_name, self.player_name)
+        
         # Send initial room state to this player
         if room:
             if room.state == RoomState.STARTED:
@@ -53,9 +56,25 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-        # Only remove player from room if they explicitly left (close_code 1000)
-        # Don't remove on navigation (1001) or network disconnects, browser refreshes, etc.
+        # Mark player as disconnected
+        room_manager.disconnect_from_room(self.room_name, self.player_name)
+        
+        # Handle different disconnect scenarios more aggressively
+        room = room_manager.get_room(self.room_name)
+        should_remove_player = False
+        
         if close_code == 1000:
+            # Explicit close - always remove player
+            should_remove_player = True
+        elif close_code == 1001:
+            # Navigation away - remove player if room is in waiting state
+            if room and room.state == RoomState.WAITING:
+                should_remove_player = True
+        elif room and not room.has_connected_players():
+            # If no other players are connected, remove this player too
+            should_remove_player = True
+            
+        if should_remove_player:
             success = room_manager.leave_room(self.room_name, self.player_name)
             if success:
                 room = room_manager.get_room(self.room_name)
@@ -68,7 +87,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                         }
                     )
 
-        logger.info(f"WebSocket disconnected: {self.player_name} from {self.room_name} (code: {close_code})")
+        logger.info(f"WebSocket disconnected: {self.player_name} from {self.room_name} (code: {close_code}, removed: {should_remove_player})")
 
     async def receive(self, text_data):
         try:
@@ -91,6 +110,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.handle_return_chip()
             elif message_type == 'advance_round':
                 await self.handle_advance_round()
+            elif message_type == 'ping':
+                await self.handle_ping()
         except Exception as e:
             logger.error(f"Error handling message: {e}")
             await self.send(text_data=json.dumps({
@@ -187,6 +208,14 @@ class GameConsumer(AsyncWebsocketConsumer):
                 success = room.poker_game.advance_round()
                 if success:
                     await self.broadcast_game_update(room)
+
+    async def handle_ping(self):
+        # Update connection activity
+        room_manager.connect_to_room(self.room_name, self.player_name)
+        # Send pong response
+        await self.send(text_data=json.dumps({
+            'type': 'pong'
+        }))
 
     async def broadcast_game_update(self, room):
         """Broadcast game state to all players with their perspective"""

@@ -6,8 +6,24 @@ export const useWebSocket = (roomName, playerName, onMessage) => {
   const [error, setError] = useState('');
   const ws = useRef(null);
   const isClosing = useRef(false);
+  const heartbeatInterval = useRef(null);
 
   useEffect(() => {
+    const startHeartbeat = () => {
+      heartbeatInterval.current = setInterval(() => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.send(JSON.stringify({ type: 'ping' }));
+        }
+      }, 30000); // Send ping every 30 seconds
+    };
+
+    const stopHeartbeat = () => {
+      if (heartbeatInterval.current) {
+        clearInterval(heartbeatInterval.current);
+        heartbeatInterval.current = null;
+      }
+    };
+
     const connectWebSocket = () => {
       ws.current = new WebSocket(`${WS_BASE}/ws/game/${roomName}/${playerName}/`);
 
@@ -16,12 +32,19 @@ export const useWebSocket = (roomName, playerName, onMessage) => {
         setConnectionStatus('connected');
         setError('');
         isClosing.current = false;
+        startHeartbeat();
       };
 
       ws.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           console.log('WebSocket message:', data);
+          
+          // Handle pong messages silently
+          if (data.type === 'pong') {
+            return;
+          }
+          
           onMessage(data);
         } catch (err) {
           console.error('Error parsing WebSocket message:', err);
@@ -31,6 +54,7 @@ export const useWebSocket = (roomName, playerName, onMessage) => {
       ws.current.onclose = (event) => {
         console.log('WebSocket closed:', event.code, event.reason);
         setConnectionStatus('disconnected');
+        stopHeartbeat();
         
         if (event.code !== 1000) {
           setTimeout(connectWebSocket, 3000);
@@ -47,6 +71,7 @@ export const useWebSocket = (roomName, playerName, onMessage) => {
     connectWebSocket();
 
     return () => {
+      stopHeartbeat();
       if (ws.current && !isClosing.current) {
         try {
           if (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING) {

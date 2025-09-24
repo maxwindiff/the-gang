@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 import logging
+import time
 from .poker_engine import PokerGame
 
 logger = logging.getLogger(__name__)
@@ -13,15 +14,18 @@ class GameRoom:
     def __init__(self, name: str):
         self.name = name
         self.players: List[str] = []
+        self.connected_players: Set[str] = set()
         self.state = RoomState.WAITING
         self.game_state = {}
         self.poker_game: Optional[PokerGame] = None
+        self.last_activity = time.time()
 
     def add_player(self, player_name: str) -> bool:
         if self.state != RoomState.WAITING:
             return False
         if player_name not in self.players:
             self.players.append(player_name)
+            self.last_activity = time.time()
             logger.info(f"Player {player_name} joined room {self.name}")
             return True
         return False
@@ -29,9 +33,28 @@ class GameRoom:
     def remove_player(self, player_name: str) -> bool:
         if player_name in self.players:
             self.players.remove(player_name)
+            self.connected_players.discard(player_name)
+            self.last_activity = time.time()
             logger.info(f"Player {player_name} left room {self.name}")
             return True
         return False
+
+    def connect_player(self, player_name: str) -> None:
+        if player_name in self.players:
+            self.connected_players.add(player_name)
+            self.last_activity = time.time()
+            logger.info(f"Player {player_name} connected to room {self.name}")
+
+    def disconnect_player(self, player_name: str) -> None:
+        self.connected_players.discard(player_name)
+        self.last_activity = time.time()
+        logger.info(f"Player {player_name} disconnected from room {self.name}")
+
+    def is_empty(self) -> bool:
+        return len(self.players) == 0
+
+    def has_connected_players(self) -> bool:
+        return len(self.connected_players) > 0
 
     def can_start_game(self) -> bool:
         return self.state == RoomState.WAITING and 3 <= len(self.players) <= 6
@@ -116,10 +139,53 @@ class RoomManager:
         room = self.get_room(room_name)
         if room:
             success = room.remove_player(player_name)
-            if success and len(room.players) == 0:
-                del self.rooms[room_name]
-                logger.info(f"Deleted empty room {room_name}")
+            if success:
+                self._cleanup_room_if_needed(room_name, room)
             return success
         return False
+
+    def connect_to_room(self, room_name: str, player_name: str) -> bool:
+        room = self.get_room(room_name)
+        if room and player_name in room.players:
+            room.connect_player(player_name)
+            return True
+        return False
+
+    def disconnect_from_room(self, room_name: str, player_name: str) -> bool:
+        room = self.get_room(room_name)
+        if room:
+            room.disconnect_player(player_name)
+            self._cleanup_room_if_needed(room_name, room)
+            return True
+        return False
+
+    def _cleanup_room_if_needed(self, room_name: str, room):
+        # Clean up room if it's completely empty
+        if room.is_empty():
+            del self.rooms[room_name]
+            logger.info(f"Deleted empty room {room_name}")
+        # Or if no players are connected and room is in waiting state for more than 5 minutes
+        elif (room.state == RoomState.WAITING and 
+              not room.has_connected_players() and 
+              time.time() - room.last_activity > 300):  # 5 minutes
+            del self.rooms[room_name]
+            logger.info(f"Deleted stale room {room_name} (no connected players for 5 minutes)")
+
+    def cleanup_stale_rooms(self) -> int:
+        """Clean up rooms with no connected players for extended periods"""
+        rooms_to_delete = []
+        current_time = time.time()
+        
+        for room_name, room in self.rooms.items():
+            # Delete rooms with no connected players for more than 10 minutes
+            if (not room.has_connected_players() and 
+                current_time - room.last_activity > 600):  # 10 minutes
+                rooms_to_delete.append(room_name)
+        
+        for room_name in rooms_to_delete:
+            del self.rooms[room_name]
+            logger.info(f"Cleaned up stale room {room_name}")
+        
+        return len(rooms_to_delete)
 
 room_manager = RoomManager()
