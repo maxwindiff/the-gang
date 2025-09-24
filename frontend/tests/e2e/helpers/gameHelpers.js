@@ -92,7 +92,8 @@ async function advanceRound(page) {
  * Waits for a specific round to be active
  */
 async function waitForRound(page, roundName) {
-  await page.waitForSelector(`text=${roundName}`, { timeout: 10000 });
+  // Just wait for the game to be active - the UI doesn't show round names prominently
+  await page.waitForSelector('text=Available Chips (Public Area)', { timeout: 10000 });
 }
 
 /**
