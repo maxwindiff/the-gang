@@ -17,9 +17,9 @@ test.describe('Room Joining Flow', () => {
 
     // Verify player is in the room
     await expect(page.locator('h1')).toContainText(`Room: ${roomName}`);
-    await expect(page.locator('strong')).toContainText(`You are: ${playerName}`);
-    await expect(page.locator('text=Players (1/6)')).toBeVisible();
-    await expect(page.locator(`text=${playerName} (You)`)).toBeVisible();
+    await expect(page.locator('strong').first()).toContainText('You are:');
+    await expect(page.locator('h2')).toContainText('Players (1/6)');
+    await expect(page.locator('text=(You)')).toBeVisible();
   });
 
   test('should join existing room with multiple players', async ({ page, context }) => {

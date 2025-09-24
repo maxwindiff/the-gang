@@ -68,7 +68,7 @@ module.exports = defineConfig({
       timeout: 120 * 1000,
     },
     {
-      command: 'cd .. && source venv/bin/activate && python manage.py runserver 8000',
+      command: 'cd .. && source venv/bin/activate && daphne -b 0.0.0.0 -p 8000 thegang.asgi:application',
       url: 'http://localhost:8000', 
       reuseExistingServer: true, // Always reuse existing server during development
       timeout: 120 * 1000,

@@ -3,21 +3,21 @@
 /**
  * Generates a unique room name to avoid conflicts between tests
  */
-export function generateRoomName() {
+function generateRoomName() {
   return `test${Date.now()}${Math.floor(Math.random() * 1000)}`;
 }
 
 /**
  * Generates a unique player name
  */
-export function generatePlayerName(prefix = 'player') {
+function generatePlayerName(prefix = 'player') {
   return `${prefix}${Date.now()}${Math.floor(Math.random() * 1000)}`;
 }
 
 /**
  * Joins a room through the landing page
  */
-export async function joinRoom(page, playerName, roomName) {
+async function joinRoom(page, playerName, roomName) {
   await page.goto('/');
   await page.fill('#playerName', playerName);
   await page.fill('#roomName', roomName);
@@ -27,7 +27,7 @@ export async function joinRoom(page, playerName, roomName) {
 /**
  * Waits for a player to be in the waiting room
  */
-export async function waitForWaitingRoom(page, expectedPlayerCount = null) {
+async function waitForWaitingRoom(page, expectedPlayerCount = null) {
   await page.waitForURL(/\/waiting\/.+\/.+/);
   await page.waitForSelector('h1', { timeout: 10000 });
   
@@ -39,7 +39,7 @@ export async function waitForWaitingRoom(page, expectedPlayerCount = null) {
 /**
  * Starts a game from the waiting room
  */
-export async function startGame(page) {
+async function startGame(page) {
   await page.waitForSelector('button:has-text("Start Game")', { timeout: 10000 });
   await page.click('button:has-text("Start Game")');
 }
@@ -47,15 +47,15 @@ export async function startGame(page) {
 /**
  * Waits for the game to start and navigate to game page
  */
-export async function waitForGameStart(page) {
+async function waitForGameStart(page) {
   await page.waitForURL(/\/game\/.+\/.+/, { timeout: 15000 });
-  await page.waitForSelector('text=Round: preflop', { timeout: 10000 });
+  await page.waitForSelector('text=Game in Progress', { timeout: 10000 });
 }
 
 /**
  * Takes a chip from the public area
  */
-export async function takeChipFromPublic(page, chipNumber) {
+async function takeChipFromPublic(page, chipNumber) {
   const chipSelector = `button:has-text("${chipNumber}")`;
   await page.waitForSelector(chipSelector, { timeout: 5000 });
   await page.click(chipSelector);
@@ -64,7 +64,7 @@ export async function takeChipFromPublic(page, chipNumber) {
 /**
  * Takes a chip from another player
  */
-export async function takeChipFromPlayer(page, targetPlayer) {
+async function takeChipFromPlayer(page, targetPlayer) {
   const takeButtonSelector = `button:has-text("Take")`;
   const playerRowSelector = `tr:has(td:has-text("${targetPlayer}"))`;
   
@@ -75,7 +75,7 @@ export async function takeChipFromPlayer(page, targetPlayer) {
 /**
  * Returns the current player's chip to public area
  */
-export async function returnChip(page) {
+async function returnChip(page) {
   await page.waitForSelector('button:has-text("Return")', { timeout: 5000 });
   await page.click('button:has-text("Return")');
 }
@@ -83,7 +83,7 @@ export async function returnChip(page) {
 /**
  * Advances the game to the next round
  */
-export async function advanceRound(page) {
+async function advanceRound(page) {
   await page.waitForSelector('button:has-text("Next Round"), button:has-text("Go to Scoring")', { timeout: 5000 });
   await page.click('button:has-text("Next Round"), button:has-text("Go to Scoring")');
 }
@@ -91,14 +91,14 @@ export async function advanceRound(page) {
 /**
  * Waits for a specific round to be active
  */
-export async function waitForRound(page, roundName) {
-  await page.waitForSelector(`text=Round: ${roundName}`, { timeout: 10000 });
+async function waitForRound(page, roundName) {
+  await page.waitForSelector(`text=${roundName}`, { timeout: 10000 });
 }
 
 /**
  * Checks if a player has a chip of a specific color
  */
-export async function playerHasChip(page, playerName, chipColor) {
+async function playerHasChip(page, playerName, chipColor) {
   const selector = `tr:has(td:has-text("${playerName}")) td[style*="${getChipColorStyle(chipColor)}"]`;
   try {
     await page.waitForSelector(selector, { timeout: 2000 });
@@ -124,14 +124,14 @@ function getChipColorStyle(chipColor) {
 /**
  * Waits for scoring results to appear
  */
-export async function waitForScoring(page) {
-  await page.waitForSelector('text=TEAM VICTORY, text=TEAM DEFEAT', { timeout: 15000 });
+async function waitForScoring(page) {
+  await page.waitForSelector('text=🎉 TEAM VICTORY! 🎉, text=💔 TEAM DEFEAT 💔', { timeout: 15000 });
 }
 
 /**
  * Checks if the team won or lost
  */
-export async function getGameResult(page) {
+async function getGameResult(page) {
   try {
     await page.waitForSelector('text=🎉 TEAM VICTORY! 🎉', { timeout: 2000 });
     return 'victory';
@@ -148,15 +148,34 @@ export async function getGameResult(page) {
 /**
  * Restarts the game from scoring screen
  */
-export async function restartGame(page) {
-  await page.waitForSelector('button:has-text("Play Again")', { timeout: 5000 });
-  await page.click('button:has-text("Play Again")');
+async function restartGame(page) {
+  await page.waitForSelector('button:has-text("Start New Game")', { timeout: 5000 });
+  await page.click('button:has-text("Start New Game")');
 }
 
 /**
  * Leaves the room/game
  */
-export async function leaveRoom(page) {
+async function leaveRoom(page) {
   await page.waitForSelector('button:has-text("Leave Room"), button:has-text("Back to Home")', { timeout: 5000 });
   await page.click('button:has-text("Leave Room"), button:has-text("Back to Home")');
 }
+
+module.exports = {
+  generateRoomName,
+  generatePlayerName,
+  joinRoom,
+  waitForWaitingRoom,
+  startGame,
+  waitForGameStart,
+  takeChipFromPublic,
+  takeChipFromPlayer,
+  returnChip,
+  advanceRound,
+  waitForRound,
+  playerHasChip,
+  waitForScoring,
+  getGameResult,
+  restartGame,
+  leaveRoom
+};
