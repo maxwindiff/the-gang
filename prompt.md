@@ -225,3 +225,9 @@ show the pocket cards and community cards side by side, reduce the width of play
 remove the pocket/commmunity heading, slightly increase spacing between pocket and community cards, slightly more narrow player name
 
 ========
+
+get playwright to work, ultrathink
+
+fix remaining tests
+
+========
