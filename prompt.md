@@ -231,3 +231,15 @@ get playwright to work, ultrathink
 fix remaining tests
 
 ========
+
+add three sound effects: chip taken, chip stolen, next round
+
+make ChipTaken louder
+
+what are the relative loudness of the 3 sound effects?
+
+increase chiptaken by 30%, chipstolen by 10%
+
+play chiptaken when returning a chip as well
+
+========
