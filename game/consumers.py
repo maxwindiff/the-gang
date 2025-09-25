@@ -32,23 +32,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         # Send initial room state to this player
         if room:
             if room.state == RoomState.STARTED:
-                # If game is already started, send game_update with full state
-                await self.send(text_data=json.dumps({
-                    'type': 'game_update',
-                    'room_data': room.to_dict(self.player_name)
-                }))
+                await self._send_message('game_update', room.to_dict(self.player_name))
             else:
                 await self.send_room_update(room)
             # Only broadcast room_update if not in active game
             if room.state != RoomState.STARTED:
-                # Broadcast updated room state to all other players
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'room_update',
-                        'room_data': room.to_dict()
-                    }
-                )
+                await self._broadcast_to_room('room_update', room.to_dict())
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -79,101 +68,83 @@ class GameConsumer(AsyncWebsocketConsumer):
             if success:
                 room = room_manager.get_room(self.room_name)
                 if room:
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'room_update',
-                            'room_data': room.to_dict()
-                        }
-                    )
+                    await self._broadcast_to_room('room_update', room.to_dict())
 
         logger.info(f"WebSocket disconnected: {self.player_name} from {self.room_name} (code: {close_code}, removed: {should_remove_player})")
+
+    async def _send_error(self, message):
+        await self.send(text_data=json.dumps({
+            'type': 'error',
+            'message': message
+        }))
+
+    async def _send_message(self, message_type, room_data=None, target_player=None):
+        message = {'type': message_type}
+        if room_data:
+            message['room_data'] = room_data
+        if target_player:
+            message['target_player'] = target_player
+        await self.send(text_data=json.dumps(message))
+
+    async def _broadcast_to_room(self, message_type, room_data=None, target_player=None):
+        message = {'type': message_type}
+        if room_data:
+            message['room_data'] = room_data
+        if target_player:
+            message['target_player'] = target_player
+        await self.channel_layer.group_send(self.room_group_name, message)
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
             message_type = data.get('type')
 
-            if message_type == 'start_game':
-                await self.handle_start_game()
-            elif message_type == 'end_game':
-                await self.handle_end_game()
-            elif message_type == 'restart_game':
-                await self.handle_restart_game()
-            elif message_type == 'leave_room':
-                await self.handle_leave_room()
-            elif message_type == 'take_chip_public':
-                await self.handle_take_chip_public(data)
-            elif message_type == 'take_chip_player':
-                await self.handle_take_chip_player(data)
-            elif message_type == 'return_chip':
-                await self.handle_return_chip()
-            elif message_type == 'advance_round':
-                await self.handle_advance_round()
-            elif message_type == 'ping':
-                await self.handle_ping()
+            handlers = {
+                'start_game': self.handle_start_game,
+                'end_game': self.handle_end_game,
+                'restart_game': self.handle_restart_game,
+                'leave_room': self.handle_leave_room,
+                'take_chip_public': lambda: self.handle_take_chip_public(data),
+                'take_chip_player': lambda: self.handle_take_chip_player(data),
+                'return_chip': self.handle_return_chip,
+                'advance_round': self.handle_advance_round,
+                'ping': self.handle_ping,
+            }
+            
+            handler = handlers.get(message_type)
+            if handler:
+                await handler()
         except Exception as e:
             logger.error(f"Error handling message: {e}")
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Invalid message format'
-            }))
+            await self._send_error('Invalid message format')
 
     async def handle_start_game(self):
         room = room_manager.get_room(self.room_name)
         if room and room.can_start_game():
             room.start_game()
-            # Send personalized game_started message to each player
             for player in room.players:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'game_started',
-                        'room_data': room.to_dict(player),
-                        'target_player': player
-                    }
-                )
+                await self._broadcast_to_room('game_started', room.to_dict(player), player)
 
     async def handle_end_game(self):
         room = room_manager.get_room(self.room_name)
         if room and room.state == RoomState.STARTED:
             room.end_game()
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'game_ended',
-                    'room_data': room.to_dict()
-                }
-            )
+            await self._broadcast_to_room('game_ended', room.to_dict())
 
     async def handle_restart_game(self):
         room = room_manager.get_room(self.room_name)
         if room:
             success = room.restart_game()
             if success:
-                # Send personalized game_started message to each player
                 for player in room.players:
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'game_started',
-                            'room_data': room.to_dict(player),
-                            'target_player': player
-                        }
-                    )
+                    await self._broadcast_to_room('game_started', room.to_dict(player), player)
 
     async def handle_leave_room(self):
         success = room_manager.leave_room(self.room_name, self.player_name)
         if success:
             room = room_manager.get_room(self.room_name)
             if room:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'room_update',
-                        'room_data': room.to_dict()
-                    }
-                )
+                await self._broadcast_to_room('room_update', room.to_dict())
             await self.close()
 
     async def handle_take_chip_public(self, data):
@@ -210,55 +181,26 @@ class GameConsumer(AsyncWebsocketConsumer):
                     await self.broadcast_game_update(room)
 
     async def handle_ping(self):
-        # Update connection activity
         room_manager.connect_to_room(self.room_name, self.player_name)
-        # Send pong response
-        await self.send(text_data=json.dumps({
-            'type': 'pong'
-        }))
+        await self._send_message('pong')
 
     async def broadcast_game_update(self, room):
-        """Broadcast game state to all players with their perspective"""
         for player in room.players:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'game_update',
-                    'room_data': room.to_dict(player),
-                    'target_player': player
-                }
-            )
+            await self._broadcast_to_room('game_update', room.to_dict(player), player)
 
     async def send_room_update(self, room):
-        await self.send(text_data=json.dumps({
-            'type': 'room_update',
-            'room_data': room.to_dict(self.player_name)
-        }))
+        await self._send_message('room_update', room.to_dict(self.player_name))
 
     async def room_update(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'room_update',
-            'room_data': event['room_data']
-        }))
+        await self._send_message(event['type'], event.get('room_data'))
 
     async def game_update(self, event):
-        # Only send to the intended player
         if event.get('target_player') == self.player_name:
-            await self.send(text_data=json.dumps({
-                'type': 'game_update',
-                'room_data': event['room_data']
-            }))
+            await self._send_message(event['type'], event.get('room_data'))
 
     async def game_started(self, event):
-        # Only send to the intended player
         if event.get('target_player') == self.player_name:
-            await self.send(text_data=json.dumps({
-                'type': 'game_started',
-                'room_data': event['room_data']
-            }))
+            await self._send_message(event['type'], event.get('room_data'))
 
     async def game_ended(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_ended',
-            'room_data': event['room_data']
-        }))
+        await self._send_message(event['type'], event.get('room_data'))

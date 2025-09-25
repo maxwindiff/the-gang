@@ -8,28 +8,15 @@ function Game() {
   const navigate = useNavigate();
   const [roomData, setRoomData] = useState(null);
 
-  // Chip styling helper functions
-  const getChipBackgroundColor = (chipColor) => {
-    return chipColors.backgrounds[chipColor] || chipColors.backgrounds.white;
-  };
-
-  const getChipBorderColor = (chipColor) => {
-    return chipColors.borders[chipColor] || chipColors.borders.white;
-  };
-
-  const getChipTextColor = (chipColor) => {
-    return chipColors.text[chipColor] || chipColors.text.white;
-  };
-
   const getChipStyle = (chipColor, size = 30) => ({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: getChipBackgroundColor(chipColor),
-    border: `2px solid ${getChipBorderColor(chipColor)}`,
+    backgroundColor: chipColors.backgrounds[chipColor] || chipColors.backgrounds.white,
+    border: `2px solid ${chipColors.borders[chipColor] || chipColors.borders.white}`,
     borderRadius: '50%',
     fontWeight: 'bold',
-    color: getChipTextColor(chipColor),
+    color: chipColors.text[chipColor] || chipColors.text.white,
     width: `${size}px`,
     height: `${size}px`,
     ...(size > 30 && { fontSize: '1rem', cursor: 'pointer' })
@@ -52,31 +39,11 @@ function Game() {
     );
   };
 
-  // Common styles
   const styles = {
-    section: {
-      marginBottom: '1.5rem',
-      padding: '0.75rem',
-      borderRadius: '8px'
-    },
-    centerText: {
-      textAlign: 'center'
-    },
-    button: {
-      padding: '0.75rem 1.5rem',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem'
-    },
-    smallButton: {
-      padding: '0.25rem 0.5rem',
-      fontSize: '0.7rem',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer'
-    }
+    section: { marginBottom: '1.5rem', padding: '0.75rem', borderRadius: '8px' },
+    centerText: { textAlign: 'center' },
+    button: { padding: '0.75rem 1.5rem', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' },
+    smallButton: { padding: '0.25rem 0.5rem', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }
   };
 
   const handleMessage = useCallback((data) => {
@@ -97,57 +64,20 @@ function Game() {
 
   const { connectionStatus, error, setError, sendMessage } = useWebSocket(roomName, playerName, handleMessage);
 
-  const handleEndGame = () => {
-    const success = sendMessage({ type: 'end_game' });
+  const sendGameMessage = (type, extraData = {}) => {
+    const success = sendMessage({ type, ...extraData });
     if (!success) {
-      setError('Failed to end game. Please try again.');
+      setError(`Failed to ${type.replace('_', ' ')}. Please try again.`);
     }
   };
 
-  const handleRestartGame = () => {
-    const success = sendMessage({ type: 'restart_game' });
-    if (!success) {
-      setError('Failed to restart game. Please try again.');
-    }
-  };
-
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
-  const handleTakeChipFromPublic = (chipNumber) => {
-    const success = sendMessage({ 
-      type: 'take_chip_public', 
-      chip_number: chipNumber 
-    });
-    if (!success) {
-      setError('Failed to take chip. Please try again.');
-    }
-  };
-
-  const handleTakeChipFromPlayer = (targetPlayer) => {
-    const success = sendMessage({ 
-      type: 'take_chip_player', 
-      target_player: targetPlayer 
-    });
-    if (!success) {
-      setError('Failed to take chip. Please try again.');
-    }
-  };
-
-  const handleReturnChip = () => {
-    const success = sendMessage({ type: 'return_chip' });
-    if (!success) {
-      setError('Failed to return chip. Please try again.');
-    }
-  };
-
-  const handleAdvanceRound = () => {
-    const success = sendMessage({ type: 'advance_round' });
-    if (!success) {
-      setError('Failed to advance round. Please try again.');
-    }
-  };
+  const handleEndGame = () => sendGameMessage('end_game');
+  const handleRestartGame = () => sendGameMessage('restart_game');
+  const handleBackToHome = () => navigate('/');
+  const handleTakeChipFromPublic = (chipNumber) => sendGameMessage('take_chip_public', { chip_number: chipNumber });
+  const handleTakeChipFromPlayer = (targetPlayer) => sendGameMessage('take_chip_player', { target_player: targetPlayer });
+  const handleReturnChip = () => sendGameMessage('return_chip');
+  const handleAdvanceRound = () => sendGameMessage('advance_round');
 
 
 
