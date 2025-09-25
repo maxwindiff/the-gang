@@ -243,3 +243,21 @@ increase chiptaken by 30%, chipstolen by 10%
 play chiptaken when returning a chip as well
 
 ========
+
+when a chip is stolen, display a faint "(N) is stolen by <player>" in the current action area
+
+I'm still seeing No Chip when someone stole a chip from me
+
+are you sure the server is running latest code?
+
+we can simply replace the "No chips" text with "(N) is stolen by X" when a steal has happened. Use the same font style as "No chip"
+
+replace the (N) with the actual chip symbol
+
+make the chip 50% smaller and 20% dimmer
+
+slightly reduce the horizontal spacing between the chip and "stolen by"
+
+excellent, git commit and push, don't forget to include prompt.md in the commit as well
+
+========

@@ -80,6 +80,9 @@ class PokerGame:
         # Scoring data
         self.scoring_results = None
         
+        # Recent chip stealing events
+        self.recent_steal_event = None
+        
         # Initialize player data
         for player in players:
             self.pocket_cards[player] = []
@@ -119,6 +122,9 @@ class PokerGame:
         
         # Place chips in public area
         self.available_chips[chip_color] = list(range(1, self.num_players + 1))
+        
+        # Clear any recent steal event when advancing rounds
+        self.recent_steal_event = None
         
         logger.info(f"Started {target_round.value} round, total community cards: {len(self.community_cards)}")
         return True
@@ -173,6 +179,9 @@ class PokerGame:
         self.available_chips[chip_color].remove(chip_number)
         self._assign_chip_to_player(player, chip_color, chip_number)
         
+        # Clear any recent steal event
+        self.recent_steal_event = None
+        
         logger.info(f"{player} took {chip_color.value} chip {chip_number}")
         return True
     
@@ -193,6 +202,14 @@ class PokerGame:
         self.player_chips[target_player][chip_color] = None
         self._assign_chip_to_player(taking_player, chip_color, target_chip)
         
+        # Track the stealing event
+        self.recent_steal_event = {
+            'chip_number': target_chip,
+            'taken_by': taking_player,
+            'taken_from': target_player,
+            'chip_color': chip_color.value
+        }
+        
         logger.info(f"{taking_player} took {chip_color.value} chip {target_chip} from {target_player}")
         return True
     
@@ -205,6 +222,9 @@ class PokerGame:
         returned_chip = self._return_player_chip_to_public(player, chip_color)
         if returned_chip is None:
             return False
+        
+        # Clear any recent steal event
+        self.recent_steal_event = None
         
         logger.info(f"{player} returned {chip_color.value} chip {returned_chip} to public")
         return True
@@ -334,6 +354,9 @@ class PokerGame:
             'all_players_have_chip': self.all_players_have_chip(),
             'can_advance': self.can_advance_round()
         }
+        
+        # Always include recent_steal_event, even if None
+        result['recent_steal_event'] = self.recent_steal_event
         
         # Add scoring results if in scoring phase
         if self.current_round == GameRound.SCORING and self.scoring_results:

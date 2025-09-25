@@ -593,39 +593,55 @@ function Game() {
                           textAlign: 'center',
                           borderBottom: '1px solid #dee2e6'
                         }}>
-                          {currentChip ? (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                              <Chip chipColor={roomData.poker_game.current_chip_color}>
-                                {currentChip}
-                              </Chip>
-                              {!isCurrentPlayer && (
-                                <button
-                                  onClick={() => handleTakeChipFromPlayer(player)}
-                                  style={{
-                                    ...styles.smallButton,
-                                    backgroundColor: '#28a745',
-                                    color: 'white'
-                                  }}
-                                >
-                                  Take
-                                </button>
-                              )}
-                              {isCurrentPlayer && (
-                                <button
-                                  onClick={handleReturnChip}
-                                  style={{
-                                    ...styles.smallButton,
-                                    backgroundColor: '#ffc107',
-                                    color: 'black'
-                                  }}
-                                >
-                                  Return
-                                </button>
-                              )}
-                            </div>
-                          ) : (
-                            <span style={{ color: '#666', fontStyle: 'italic' }}>No chip</span>
-                          )}
+                          <div>
+                            {currentChip ? (
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                <Chip chipColor={roomData.poker_game.current_chip_color}>
+                                  {currentChip}
+                                </Chip>
+                                {!isCurrentPlayer && (
+                                  <button
+                                    onClick={() => handleTakeChipFromPlayer(player)}
+                                    style={{
+                                      ...styles.smallButton,
+                                      backgroundColor: '#28a745',
+                                      color: 'white'
+                                    }}
+                                  >
+                                    Take
+                                  </button>
+                                )}
+                                {isCurrentPlayer && (
+                                  <button
+                                    onClick={handleReturnChip}
+                                    style={{
+                                      ...styles.smallButton,
+                                      backgroundColor: '#ffc107',
+                                      color: 'black'
+                                    }}
+                                  >
+                                    Return
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              roomData.poker_game.recent_steal_event && 
+                              roomData.poker_game.recent_steal_event.taken_from === player ? (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0' }}>
+                                  <div style={{ transform: 'scale(0.5)', opacity: 0.8 }}>
+                                    <Chip chipColor={roomData.poker_game.recent_steal_event.chip_color}>
+                                      {roomData.poker_game.recent_steal_event.chip_number}
+                                    </Chip>
+                                  </div>
+                                  <span style={{ color: '#666', fontStyle: 'italic' }}>
+                                    stolen by {roomData.poker_game.recent_steal_event.taken_by}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span style={{ color: '#666', fontStyle: 'italic' }}>No chip</span>
+                              )
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
