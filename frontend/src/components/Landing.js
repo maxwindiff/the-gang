@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE, commonStyles, buttonColors } from '../utils/constants';
 
@@ -8,6 +8,18 @@ function Landing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Generate random username in dev mode
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const adjectives = ['Cool', 'Fast', 'Smart', 'Lucky', 'Bold', 'Quick', 'Wild', 'Sharp'];
+      const animals = ['Fox', 'Cat', 'Dog', 'Wolf', 'Bear', 'Lion', 'Tiger', 'Eagle'];
+      const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const animal = animals[Math.floor(Math.random() * animals.length)];
+      const number = Math.floor(Math.random() * 100);
+      setPlayerName(`${adjective}${animal}${number}`);
+    }
+  }, []);
 
   const validateInput = (value) => {
     return /^[a-zA-Z0-9]+$/.test(value);

@@ -261,3 +261,15 @@ slightly reduce the horizontal spacing between the chip and "stolen by"
 excellent, git commit and push, don't forget to include prompt.md in the commit as well
 
 ========
+
+in dev mode, add a gray link below the public area to distribute a chip to every player, in order to speed up manual testing
+
+this doesn't work, the window where the link is clicked will try to take all 3 chips. we need to do the distribution on the server side
+
+remember to restart server
+
+in dev mode, generate a random username in the joining page by default, again to speed up testing
+
+this worked. however the distribute chip functionality only managed to distribute 2 out of 3 chips
+
+========

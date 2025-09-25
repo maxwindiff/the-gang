@@ -109,6 +109,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'return_chip': self.handle_return_chip,
                 'advance_round': self.handle_advance_round,
                 'ping': self.handle_ping,
+                'dev_distribute_chips': self.handle_dev_distribute_chips,
             }
             
             handler = handlers.get(message_type)
@@ -183,6 +184,26 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def handle_ping(self):
         room_manager.connect_to_room(self.room_name, self.player_name)
         await self._send_message('pong')
+
+    async def handle_dev_distribute_chips(self):
+        """Dev helper: distribute chips to all players"""
+        room = room_manager.get_room(self.room_name)
+        if room and room.poker_game:
+            current_chip_color = room.poker_game.get_current_chip_color()
+            available_chips = room.poker_game.available_chips.get(current_chip_color, []).copy()
+            players = room.players
+            
+            # Distribute chips to players in order
+            for i, player in enumerate(players):
+                if i < len(available_chips):
+                    chip_number = available_chips[i]
+                    success = room.poker_game.take_chip_from_public(player, chip_number)
+                    if success:
+                        logger.info(f"[DEV] Distributed {current_chip_color.value} chip {chip_number} to {player}")
+                    else:
+                        logger.warning(f"[DEV] Failed to distribute {current_chip_color.value} chip {chip_number} to {player}")
+            
+            await self.broadcast_game_update(room)
 
     async def broadcast_game_update(self, room):
         for player in room.players:

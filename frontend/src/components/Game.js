@@ -113,6 +113,11 @@ function Game() {
     // Sound will be played by handleMessage when round change is detected
   };
 
+  const handleDistributeChips = () => {
+    // Dev helper: server-side distribution of chips to all players
+    sendGameMessage('dev_distribute_chips');
+  };
+
 
 
   return (
@@ -421,6 +426,25 @@ function Game() {
                   </div>
                 )}
               </div>
+              {/* Dev helper link */}
+              {process.env.NODE_ENV === 'development' && roomData.poker_game.available_chips.length > 0 && (
+                <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                  <button
+                    onClick={handleDistributeChips}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#999',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      padding: '0.25rem'
+                    }}
+                  >
+                    [dev] distribute chips to all players
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
