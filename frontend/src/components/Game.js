@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useSounds } from '../hooks/useSounds';
 import { statusColors, chipColors } from '../utils/constants';
 
 function Game() {
@@ -46,21 +47,39 @@ function Game() {
     smallButton: { padding: '0.25rem 0.5rem', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }
   };
 
+  const { playChipTaken, playChipStolen, playNextRound } = useSounds();
+
   const handleMessage = useCallback((data) => {
     switch (data.type) {
       case 'room_update':
       case 'game_started':
+        setRoomData(data.room_data);
+        break;
       case 'game_update':
+        // Detect game state changes for sound effects
+        setRoomData(prevData => {
+          const prevRound = prevData?.poker_game?.round;
+          const newRound = data.room_data?.poker_game?.round;
+          
+          // Play next round sound when round advances (but not on initial game start)
+          if (prevRound && newRound && prevRound !== newRound) {
+            playNextRound();
+          }
+          
+          return data.room_data;
+        });
+        break;
       case 'game_ended':
         setRoomData(data.room_data);
         break;
       case 'error':
-        setError(data.message);
+        console.error('Game error:', data.message);
+        // We'll handle the error through the WebSocket hook's error state
         break;
       default:
         console.log('Unknown message type:', data.type);
     }
-  }, []);
+  }, [playNextRound]);
 
   const { connectionStatus, error, setError, sendMessage } = useWebSocket(roomName, playerName, handleMessage);
 
@@ -74,10 +93,25 @@ function Game() {
   const handleEndGame = () => sendGameMessage('end_game');
   const handleRestartGame = () => sendGameMessage('restart_game');
   const handleBackToHome = () => navigate('/');
-  const handleTakeChipFromPublic = (chipNumber) => sendGameMessage('take_chip_public', { chip_number: chipNumber });
-  const handleTakeChipFromPlayer = (targetPlayer) => sendGameMessage('take_chip_player', { target_player: targetPlayer });
-  const handleReturnChip = () => sendGameMessage('return_chip');
-  const handleAdvanceRound = () => sendGameMessage('advance_round');
+  const handleTakeChipFromPublic = (chipNumber) => {
+    sendGameMessage('take_chip_public', { chip_number: chipNumber });
+    playChipTaken();
+  };
+  
+  const handleTakeChipFromPlayer = (targetPlayer) => {
+    sendGameMessage('take_chip_player', { target_player: targetPlayer });
+    playChipStolen();
+  };
+  
+  const handleReturnChip = () => {
+    sendGameMessage('return_chip');
+    playChipTaken();
+  };
+  
+  const handleAdvanceRound = () => {
+    sendGameMessage('advance_round');
+    // Sound will be played by handleMessage when round change is detected
+  };
 
 
 
