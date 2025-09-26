@@ -4,97 +4,6 @@ A real-time multiplayer cooperative poker variant where players work together to
 
 ![Screenshot](static/screenshot.jpg)
 
-## Setup
-
-### Quick Start (Production)
-
-```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install backend dependencies
-pip install -r requirements.txt
-
-# Install frontend dependencies
-cd frontend
-npm install
-cd ..
-
-# Start production server (builds frontend and serves everything on port 80)
-sudo ./start_servers.sh
-```
-
-### Development Mode (Hot Reloading)
-
-```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install backend dependencies
-pip install -r requirements.txt
-
-# Install frontend dependencies
-cd frontend
-npm install
-cd ..
-
-# Start development servers (Django on 8000, React on 3000)
-./start_dev.sh
-```
-
-### Manual Setup
-
-**Production:**
-```bash
-# Create virtual environment and install dependencies
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Build frontend
-cd frontend
-npm install
-npm run build
-cd ..
-
-# Start Django server (serves both API and frontend on port 80)
-sudo daphne -b 0.0.0.0 -p 80 thegang.asgi:application
-```
-
-**Development:**
-```bash
-# Create virtual environment and install dependencies
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Install frontend dependencies
-cd frontend
-npm install
-cd ..
-
-# Start Django backend (port 8000)
-daphne -b 0.0.0.0 -p 8000 thegang.asgi:application
-
-# In another terminal, start React frontend (port 3000)
-cd frontend && npm start
-```
-
-### Usage
-
-**Production Mode:**
-1. Run `sudo ./start_servers.sh`
-2. Open http://localhost in your browser
-
-**Development Mode:**
-1. Run `./start_dev.sh`
-2. Open http://localhost:3000 in your browser (with hot reloading)
-3. Enter your player name and room name
-4. Wait for other players to join (3-6 players needed)
-5. Any player can start the game when enough players are present
-
 ## Game Rules
 
 **The Gang** is a cooperative poker game where all players win or lose together based on their ability to correctly predict hand strengths.
@@ -114,6 +23,60 @@ The team wins if the red chip assignments match the actual hand strength ranking
 
 ### Poker Hand Rankings
 Standard poker hands apply (Royal Flush > Straight Flush > Four of a Kind > Full House > Flush > Straight > Three of a Kind > Two Pair > One Pair > High Card).
+
+## Setup
+
+### Prerequisites
+```bash
+# Create virtual environment and install dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+```
+
+### Quick Start
+
+**Production Mode (Port 80):**
+```bash
+sudo ./start_servers.sh
+```
+Then open http://localhost in your browser.
+
+**Development Mode (Ports 8000 + 3000):**
+```bash
+./start_dev.sh
+```
+Then open http://localhost:3000 in your browser (with hot reloading).
+
+### Manual Setup
+
+**Production:**
+```bash
+# Build frontend
+cd frontend && npm run build && cd ..
+
+# Start Django server (serves both API and frontend on port 80)
+sudo daphne -b 0.0.0.0 -p 80 thegang.asgi:application
+```
+
+**Development:**
+```bash
+# Start Django backend (port 8000)
+daphne -b 0.0.0.0 -p 8000 thegang.asgi:application
+
+# In another terminal, start React frontend (port 3000)
+cd frontend && npm start
+```
+
+### How to Play
+1. Enter your player name and room name
+2. Wait for other players to join (3-6 players needed)
+3. Any player can start the game when enough players are present
 
 ---
 
