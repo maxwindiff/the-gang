@@ -16,3 +16,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Don't use type annotations in Python
 - Add logs to assist with debugging
 
+
+- don't automatically git commit or push after changes

@@ -273,3 +273,7 @@ in dev mode, generate a random username in the joining page by default, again to
 this worked. however the distribute chip functionality only managed to distribute 2 out of 3 chips
 
 ========
+
+move game rules right after the screenshot. also refactor setup instructions to minimize duplication, specifically venv, pip install and npm install can be factored out.
+
+========
