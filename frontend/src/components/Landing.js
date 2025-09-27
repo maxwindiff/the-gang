@@ -68,9 +68,15 @@ function Landing() {
     }
   };
 
+  const isMobile = window.innerWidth <= 768;
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
-      <h1>The Gang - Poker</h1>
+    <div style={{ padding: isMobile ? '1rem' : '2rem', maxWidth: '400px', margin: '0 auto' }}>
+      <h1 style={{
+        fontSize: isMobile ? '1.25rem' : '2rem',
+        margin: isMobile ? '0 0 1rem 0' : '0 0 1.5rem 0',
+        textAlign: 'center'
+      }}>The Gang - Poker</h1>
       <form onSubmit={handleJoinRoom}>
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="playerName" style={{ display: 'block', marginBottom: '0.5rem' }}>
@@ -123,7 +129,10 @@ function Landing() {
       </form>
 
       <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#666' }}>
-        <h3>How to play:</h3>
+        <h3 style={{
+          fontSize: isMobile ? '1rem' : '1.17rem',
+          margin: isMobile ? '1rem 0 0.5rem 0' : '1.5rem 0 0.83rem 0'
+        }}>How to play:</h3>
         <ul style={{ textAlign: 'left' }}>
           <li>Enter your player name and room name</li>
           <li>If the room doesn't exist, it will be created</li>

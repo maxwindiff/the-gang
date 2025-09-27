@@ -23,9 +23,24 @@ function Game() {
     ...(size > 30 && { fontSize: '1rem', cursor: 'pointer' })
   });
 
-  // Reusable chip component
-  const Chip = ({ chipColor, size = 30, children, onClick, ...props }) => {
-    const style = getChipStyle(chipColor, size);
+  // Reusable chip component with mobile optimization
+  const Chip = ({ chipColor, size, children, onClick, ...props }) => {
+    // Default mobile-responsive size
+    const defaultSize = isMobile ? 40 : 30;
+    const chipSize = size || defaultSize;
+    
+    const style = {
+      ...getChipStyle(chipColor, chipSize),
+      // Ensure minimum touch target on mobile
+      ...(isMobile && onClick && { 
+        minWidth: '44px', 
+        minHeight: '44px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      })
+    };
+    
     if (onClick) {
       return (
         <button onClick={onClick} style={style} {...props}>
@@ -40,11 +55,52 @@ function Game() {
     );
   };
 
+  // Responsive styles with mobile optimizations
+  const isMobile = window.innerWidth <= 768;
+  
   const styles = {
-    section: { marginBottom: '1.5rem', padding: '0.75rem', borderRadius: '8px' },
+    section: { 
+      marginBottom: isMobile ? '1rem' : '1.5rem', 
+      padding: isMobile ? '0.5rem' : '0.75rem', 
+      borderRadius: '8px' 
+    },
     centerText: { textAlign: 'center' },
-    button: { padding: '0.75rem 1.5rem', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' },
-    smallButton: { padding: '0.25rem 0.5rem', fontSize: '0.7rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }
+    button: { 
+      padding: isMobile ? '0.75rem 1rem' : '0.75rem 1.5rem', 
+      color: 'white', 
+      border: 'none', 
+      borderRadius: '4px', 
+      cursor: 'pointer', 
+      fontSize: isMobile ? '0.9rem' : '1rem',
+      minHeight: '44px', // Touch target size
+      minWidth: isMobile ? '100px' : 'auto'
+    },
+    smallButton: { 
+      padding: isMobile ? '0.5rem 0.75rem' : '0.25rem 0.5rem', 
+      fontSize: isMobile ? '0.8rem' : '0.7rem', 
+      border: 'none', 
+      borderRadius: '4px', 
+      cursor: 'pointer',
+      minHeight: '44px', // Touch target size
+      minWidth: '60px'
+    },
+    mobileTable: {
+      display: isMobile ? 'block' : 'table',
+      width: '100%'
+    },
+    mobileTableRow: {
+      display: isMobile ? 'block' : 'table-row',
+      marginBottom: isMobile ? '1rem' : '0',
+      padding: isMobile ? '0.75rem' : '0',
+      backgroundColor: isMobile ? '#f8f9fa' : 'transparent',
+      borderRadius: isMobile ? '8px' : '0',
+      border: isMobile ? '1px solid #dee2e6' : 'none'
+    },
+    mobileTableCell: {
+      display: isMobile ? 'block' : 'table-cell',
+      padding: isMobile ? '0.5rem 0' : '0.75rem',
+      borderBottom: isMobile ? 'none' : '1px solid #dee2e6'
+    }
   };
 
   const { playChipTaken, playChipStolen, playNextRound } = useSounds();
@@ -121,19 +177,24 @@ function Game() {
 
 
   return (
-    <div style={{ padding: '1rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: isMobile ? '0.5rem' : '1rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '0.5rem'
+        marginBottom: isMobile ? '0.25rem' : '0.5rem',
+        padding: isMobile ? '0.25rem 0' : '0'
       }}>
-        <h1>Game in Progress - Room: {roomName}</h1>
+        <h1 style={{
+          fontSize: isMobile ? '1rem' : '1.5rem',
+          margin: '0',
+          fontWeight: 'bold'
+        }}>Room: {roomName}</h1>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '1rem',
-          fontSize: '0.9rem'
+          gap: isMobile ? '0.5rem' : '1rem',
+          fontSize: isMobile ? '0.75rem' : '0.9rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div 
@@ -150,7 +211,7 @@ function Game() {
             <button
               onClick={handleEndGame}
               style={{
-                padding: '0.5rem 1rem',
+                padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
                 backgroundColor: '#dc3545',
                 color: 'white',
                 border: 'none',
@@ -185,29 +246,29 @@ function Game() {
           {(roomData.poker_game.pocket_cards?.length > 0 || roomData.poker_game.community_cards.length > 0) && (
             <div style={{ 
               display: 'flex',
-              gap: '1rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap'
+              flexDirection: 'column',
+              gap: isMobile ? '0.5rem' : '1rem',
+              marginBottom: isMobile ? '1rem' : '1.5rem'
             }}>
               {/* Pocket Cards */}
               {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
                 <div style={{ 
-                  flex: '0 0 auto',
-                  padding: '0.75rem',
+                  padding: isMobile ? '0.5rem' : '0.75rem',
                   backgroundColor: '#fff3cd',
                   borderRadius: '8px',
                   textAlign: 'center'
                 }}>
-                  <h3>Your Pocket Cards</h3>
+                  <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Pocket Cards</h3>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                     {roomData.poker_game.pocket_cards.map((card, index) => (
                       <div key={index} style={{
-                        padding: '0.5rem',
+                        padding: isMobile ? '0.3rem' : '0.5rem',
                         backgroundColor: 'white',
                         border: '2px solid #ffc107',
                         borderRadius: '4px',
-                        minWidth: '40px',
-                        textAlign: 'center'
+                        minWidth: isMobile ? '35px' : '40px',
+                        textAlign: 'center',
+                        fontSize: isMobile ? '0.8rem' : '1rem'
                       }}>
                         {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
                       </div>
@@ -219,22 +280,22 @@ function Game() {
               {/* Community Cards */}
               {roomData.poker_game.community_cards.length > 0 && (
                 <div style={{ 
-                  flex: '1',
-                  padding: '0.75rem',
+                  padding: isMobile ? '0.5rem' : '0.75rem',
                   backgroundColor: '#e8f5e8',
                   borderRadius: '8px',
                   textAlign: 'center'
                 }}>
-                  <h3>Community Cards</h3>
+                  <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Community Cards</h3>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                     {roomData.poker_game.community_cards.map((card, index) => (
                       <div key={index} style={{
-                        padding: '0.5rem',
+                        padding: isMobile ? '0.3rem' : '0.5rem',
                         backgroundColor: 'white',
                         border: '1px solid #ccc',
                         borderRadius: '4px',
-                        minWidth: '40px',
-                        textAlign: 'center'
+                        minWidth: isMobile ? '35px' : '40px',
+                        textAlign: 'center',
+                        fontSize: isMobile ? '0.8rem' : '1rem'
                       }}>
                         {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
                       </div>
@@ -249,141 +310,185 @@ function Game() {
           {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring ? (
             <div style={{
               ...styles.section,
-              padding: '1rem',
+              padding: '0.5rem 1rem',
               backgroundColor: roomData.poker_game.scoring.win ? '#d4edda' : '#f8d7da',
               border: `2px solid ${roomData.poker_game.scoring.win ? '#c3e6cb' : '#f5c6cb'}`
             }}>
               <h2 style={{ 
                 ...styles.centerText,
                 color: roomData.poker_game.scoring.win ? '#155724' : '#721c24',
-                marginBottom: '1rem'
+                marginBottom: isMobile ? '0.25rem' : '0.5rem',
+                fontSize: isMobile ? '1rem' : '1.5rem'
               }}>
                 {roomData.poker_game.scoring.win ? '🎉 TEAM VICTORY! 🎉' : '💔 TEAM DEFEAT 💔'}
               </h2>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {(() => {
-                  // Create array of players with their data, sorted by red chip number
-                  const playersWithData = roomData.poker_game.scoring.ranked_players.map(([player, hand], actualRankIndex) => ({
-                    player,
-                    hand,
-                    actualRank: actualRankIndex + 1,
-                    redChip: roomData.poker_game.scoring.red_chip_assignments[player],
-                    allCards: roomData.poker_game.scoring.player_all_cards[player]
-                  }));
-                  
-                  // Sort by red chip number
-                  playersWithData.sort((a, b) => a.redChip - b.redChip);
-                  
-                  // Helper function to check if a card is used in the best hand
-                  const isCardUsed = (card, bestHandCards) => {
-                    return bestHandCards.some(handCard => 
-                      handCard.rank === card.rank && handCard.suit === card.suit
-                    );
-                  };
-                  
-                  return playersWithData.map(({ player, hand, actualRank, redChip, allCards }) => {
-                    const isCorrectPosition = redChip === actualRank;
-                    
-                    return (
-                      <div key={player} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '0.75rem',
-                        backgroundColor: 'white',
-                        border: '1px solid #dee2e6',
-                        borderRadius: '4px'
-                      }}>
-                        <div style={{ flex: '0 0 auto', marginRight: '1rem' }}>
-                          <div style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#dc3545',
-                            color: 'white',
-                            borderRadius: '50%',
-                            fontSize: '0.9rem',
-                            fontWeight: 'bold',
-                            width: '30px',
-                            height: '30px'
-                          }}>
-                            {redChip}
-                          </div>
-                        </div>
-                        <div style={{ flex: '0 0 100px', marginRight: '1rem' }}>
-                          <strong>{player}</strong>
-                          {player === playerName && ' (You)'}
-                        </div>
-                        <div style={{ flex: 3, textAlign: 'center' }}>
-                          <div style={{ marginBottom: '0.5rem' }}><strong>{hand.rank_display}</strong></div>
+              {(() => {
+                // Create array of players with their data, sorted by red chip number
+                const playersWithData = roomData.poker_game.scoring.ranked_players.map(([player, hand], actualRankIndex) => ({
+                  player,
+                  hand,
+                  actualRank: actualRankIndex + 1,
+                  redChip: roomData.poker_game.scoring.red_chip_assignments[player],
+                  allCards: roomData.poker_game.scoring.player_all_cards[player]
+                }));
+                
+                // Sort by red chip number
+                playersWithData.sort((a, b) => a.redChip - b.redChip);
+                
+                // Helper function to check if a card is used in the best hand
+                const isCardUsed = (card, bestHandCards) => {
+                  return bestHandCards.some(handCard => 
+                    handCard.rank === card.rank && handCard.suit === card.suit
+                  );
+                };
+                
+                return (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      backgroundColor: 'white',
+                      borderRadius: '8px',
+                      overflow: 'hidden'
+                    }}>
+                      <tbody>
+                        {playersWithData.map(({ player, hand, actualRank, redChip, allCards }) => {
+                          const isCorrectPosition = redChip === actualRank;
                           
-                          {/* Cards side by side */}
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', alignItems: 'flex-start' }}>
-                            {/* Pocket Cards */}
-                            <div style={{ display: 'flex', gap: '0.25rem' }}>
-                              {allCards.pocket_cards.map((card, i) => {
-                                const isUsed = isCardUsed(card, hand.cards);
-                                return (
-                                  <div key={`pocket-${i}`} style={{
-                                    padding: '0.25rem 0.5rem',
-                                    backgroundColor: 'white',
-                                    border: '2px solid #ffc107',
-                                    borderRadius: '4px',
-                                    fontSize: '0.9rem',
-                                    color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
-                                    fontWeight: 'bold',
-                                    opacity: isUsed ? 1 : 0.3
-                                  }}>
-                                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                          return (
+                            <React.Fragment key={player}>
+                              {/* Player and Hand Type Row */}
+                              <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                <td style={{ 
+                                  padding: '0.5rem', 
+                                  fontWeight: 'bold', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  verticalAlign: 'middle'
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      backgroundColor: '#dc3545',
+                                      color: 'white',
+                                      borderRadius: '50%',
+                                      fontSize: '0.8rem',
+                                      fontWeight: 'bold',
+                                      width: '24px',
+                                      height: '24px'
+                                    }}>
+                                      {redChip}
+                                    </div>
+                                    {player}{player === playerName && ' (You)'}
                                   </div>
-                                );
-                              })}
-                            </div>
-                            
-                            {/* Community Cards */}
-                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                              {allCards.community_cards.map((card, i) => {
-                                const isUsed = isCardUsed(card, hand.cards);
-                                return (
-                                  <div key={`community-${i}`} style={{
-                                    padding: '0.25rem 0.5rem',
-                                    backgroundColor: 'white',
-                                    border: '1px solid #28a745',
-                                    borderRadius: '4px',
-                                    fontSize: '0.9rem',
-                                    color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
-                                    fontWeight: 'bold',
-                                    opacity: isUsed ? 1 : 0.3
+                                </td>
+                                <td style={{ 
+                                  padding: '0.5rem', 
+                                  textAlign: 'center', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  fontWeight: 'bold',
+                                  fontSize: isMobile ? '0.9rem' : '1rem'
+                                }}>
+                                  {hand.rank_display}
+                                </td>
+                              </tr>
+                              
+                              {/* Cards Row */}
+                              <tr>
+                                <td colSpan="2" style={{ 
+                                  padding: '0.5rem', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  textAlign: 'center'
+                                }}>
+                                  <div style={{ 
+                                    display: 'flex', 
+                                    gap: '0.25rem', 
+                                    justifyContent: 'center', 
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center'
                                   }}>
-                                    {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                                    {/* Pocket Cards */}
+                                    {allCards.pocket_cards.map((card, i) => {
+                                      const isUsed = isCardUsed(card, hand.cards);
+                                      return (
+                                        <div key={`pocket-${i}`} style={{
+                                          padding: isMobile ? '0.2rem 0.3rem' : '0.25rem 0.4rem',
+                                          backgroundColor: 'white',
+                                          border: '2px solid #ffc107',
+                                          borderRadius: '3px',
+                                          fontSize: isMobile ? '0.7rem' : '0.8rem',
+                                          color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                          fontWeight: 'bold',
+                                          opacity: isUsed ? 1 : 0.3
+                                        }}>
+                                          {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                                        </div>
+                                      );
+                                    })}
+                                    
+                                    {/* Spacing between pocket and community cards */}
+                                    <div style={{ width: '0.75rem' }}></div>
+                                    
+                                    {/* Community Cards */}
+                                    {allCards.community_cards.map((card, i) => {
+                                      const isUsed = isCardUsed(card, hand.cards);
+                                      return (
+                                        <div key={`community-${i}`} style={{
+                                          padding: isMobile ? '0.2rem 0.3rem' : '0.25rem 0.4rem',
+                                          backgroundColor: 'white',
+                                          border: '1px solid #28a745',
+                                          borderRadius: '3px',
+                                          fontSize: isMobile ? '0.7rem' : '0.8rem',
+                                          color: ['hearts', 'diamonds'].includes(card.suit) ? 'red' : 'black',
+                                          fontWeight: 'bold',
+                                          opacity: isUsed ? 1 : 0.3
+                                        }}>
+                                          {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{ flex: '0 0 auto', textAlign: 'right' }}>
-                          <span style={{
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
-                            color: isCorrectPosition ? '#28a745' : '#dc3545'
-                          }}>
-                            Actual: #{actualRank}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
+                                </td>
+                              </tr>
+                              
+                              {/* Guessed vs Actual Row */}
+                              <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                <td style={{ 
+                                  padding: '0.5rem', 
+                                  borderBottom: player === playersWithData[playersWithData.length - 1].player ? 'none' : '2px solid #dee2e6',
+                                  fontWeight: 'bold',
+                                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                  textAlign: 'left'
+                                }}>
+                                  Guessed: #{redChip}
+                                </td>
+                                <td style={{ 
+                                  padding: '0.5rem', 
+                                  borderBottom: player === playersWithData[playersWithData.length - 1].player ? 'none' : '2px solid #dee2e6',
+                                  fontWeight: 'bold',
+                                  fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                  color: isCorrectPosition ? '#28a745' : '#dc3545',
+                                  textAlign: 'left'
+                                }}>
+                                  Actual: #{actualRank}
+                                </td>
+                              </tr>
+                            </React.Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div style={{ 
               ...styles.section,
               backgroundColor: '#f8f9fa'
             }}>
-              <h3>Available Chips (Public Area)</h3>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                 {roomData.poker_game.available_chips.length > 0 ? (
                   roomData.poker_game.available_chips.map((chipNumber) => (
@@ -437,7 +542,7 @@ function Game() {
                       color: '#999',
                       textDecoration: 'underline',
                       cursor: 'pointer',
-                      fontSize: '0.8rem',
+                      fontSize: isMobile ? '0.7rem' : '0.8rem',
                       padding: '0.25rem'
                     }}
                   >
@@ -453,14 +558,202 @@ function Game() {
             ...styles.section,
             backgroundColor: '#e7f3ff'
           }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ 
-                width: '100%', 
-                borderCollapse: 'collapse',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}>
+            {isMobile ? (
+              // Mobile card layout
+              <div>
+                {roomData.players.map((player, index) => {
+                  const isCurrentPlayer = player === playerName;
+                  return (
+                    <div key={player} style={{
+                      ...styles.mobileTableRow,
+                      marginBottom: '0.5rem',
+                      position: 'relative'
+                    }}>
+                      {/* Player name and history chips on same row */}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        marginBottom: '0.25rem',
+                        gap: '0.5rem'
+                      }}>
+                        <div style={{ 
+                          fontWeight: 'bold', 
+                          fontSize: isMobile ? '0.8rem' : '1.1rem',
+                          color: isCurrentPlayer ? '#007bff' : '#333',
+                          flex: '0 0 auto',
+                          minWidth: '60px',
+                          textAlign: 'left'
+                        }}>
+                          {player}{isCurrentPlayer && ' (You)'}
+                        </div>
+                        
+                        {/* History chips inline with colored backgrounds */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem', flex: '1', justifyContent: 'flex-end' }}>
+                          <div style={{ 
+                            width: '26px', 
+                            height: '26px', 
+                            backgroundColor: '#f1f3f4', 
+                            borderRadius: '3px',
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center' 
+                          }}>
+                            {roomData.poker_game.chip_history[player].white ? (
+                              <Chip chipColor="white" size={20}>
+                                {roomData.poker_game.chip_history[player].white}
+                              </Chip>
+                            ) : (
+                              <span style={{ color: '#ccc', fontSize: '0.6rem' }}>-</span>
+                            )}
+                          </div>
+                          
+                          <div style={{ 
+                            width: '26px', 
+                            height: '26px', 
+                            backgroundColor: '#fff3cd', 
+                            borderRadius: '3px',
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center' 
+                          }}>
+                            {roomData.poker_game.chip_history[player].yellow ? (
+                              <Chip chipColor="yellow" size={20}>
+                                {roomData.poker_game.chip_history[player].yellow}
+                              </Chip>
+                            ) : (
+                              <span style={{ color: '#ccc', fontSize: '0.6rem' }}>-</span>
+                            )}
+                          </div>
+                          
+                          <div style={{ 
+                            width: '26px', 
+                            height: '26px', 
+                            backgroundColor: '#ffeaa7', 
+                            borderRadius: '3px',
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center' 
+                          }}>
+                            {roomData.poker_game.chip_history[player].orange ? (
+                              <Chip chipColor="orange" size={20}>
+                                {roomData.poker_game.chip_history[player].orange}
+                              </Chip>
+                            ) : (
+                              <span style={{ color: '#ccc', fontSize: '0.6rem' }}>-</span>
+                            )}
+                          </div>
+                          
+                          <div style={{ 
+                            width: '26px', 
+                            height: '26px', 
+                            backgroundColor: '#f8d7da', 
+                            borderRadius: '3px',
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center' 
+                          }}>
+                            {roomData.poker_game.chip_history[player].red ? (
+                              <Chip chipColor="red" size={20}>
+                                {roomData.poker_game.chip_history[player].red}
+                              </Chip>
+                            ) : (
+                              <span style={{ color: '#ccc', fontSize: '0.6rem' }}>-</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Current chip and action on one row */}
+                      {roomData.poker_game.round !== 'scoring' && (
+                      <div style={{ 
+                        marginTop: '0.25rem', 
+                        padding: '0.25rem', 
+                        backgroundColor: '#e9ecef', 
+                        borderRadius: '4px',
+                        minHeight: '36px',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
+                          {(() => {
+                            const currentChip = roomData.poker_game.player_chips[player];
+                            
+                            if (currentChip) {
+                              return (
+                                <>
+                                  <Chip chipColor={roomData.poker_game.current_chip_color} size={24}>
+                                    {currentChip}
+                                  </Chip>
+                                  {!isCurrentPlayer ? (
+                                    <button
+                                      onClick={() => handleTakeChipFromPlayer(player)}
+                                      style={{
+                                        padding: '0.25rem 0.5rem',
+                                        fontSize: '0.7rem',
+                                        backgroundColor: '#28a745',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        minHeight: '28px'
+                                      }}
+                                    >
+                                      Take
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={handleReturnChip}
+                                      style={{
+                                        padding: '0.25rem 0.5rem',
+                                        fontSize: '0.7rem',
+                                        backgroundColor: '#ffc107',
+                                        color: 'black',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        minHeight: '28px'
+                                      }}
+                                    >
+                                      Return
+                                    </button>
+                                  )}
+                                </>
+                              );
+                            } else {
+                              return roomData.poker_game.recent_steal_event && 
+                                     roomData.poker_game.recent_steal_event.taken_from === player ? (
+                                <>
+                                  <div style={{ transform: 'scale(0.5)', opacity: 0.8 }}>
+                                    <Chip chipColor={roomData.poker_game.recent_steal_event.chip_color} size={24}>
+                                      {roomData.poker_game.recent_steal_event.chip_number}
+                                    </Chip>
+                                  </div>
+                                  <span style={{ color: '#666', fontStyle: 'italic', fontSize: '0.7rem' }}>
+                                    stolen by {roomData.poker_game.recent_steal_event.taken_by}
+                                  </span>
+                                </>
+                              ) : (
+                                <span style={{ color: '#666', fontStyle: 'italic', fontSize: '0.7rem' }}>No chip</span>
+                              );
+                            }
+                          })()}
+                        </div>
+                      </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Desktop table layout
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{
+                  ...styles.mobileTable,
+                  borderCollapse: 'collapse',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  overflow: 'hidden'
+                }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8f9fa' }}>
                     <th style={{ 
@@ -673,6 +966,7 @@ function Game() {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
           {/* Scoring Actions */}

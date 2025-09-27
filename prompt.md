@@ -277,3 +277,58 @@ this worked. however the distribute chip functionality only managed to distribut
 move game rules right after the screenshot. also refactor setup instructions to minimize duplication, specifically venv, pip install and npm install can be factored out.
 
 ========
+
+make this work well on mobile, ultrathink
+
+the header needs to be more compact, use no more than ~1cm of screen space
+
+try to fit the bidding history (pre-flop, flop, turn, river) in one row
+
+remove the "Current Action" heading, fit the taken chip and "return"/"take" buttons on one row
+
+can we move the current action to the right of the player name? and left-justify player name and limit its width
+
+ESC
+
+actually you know what, we should put the history next to the player name, remove the Pre/Flop/Turn/River headings. the current action can stay under the player name / history bar
+
+looks good, let's bring back the white/yellow/orange/red boxes which contains the chips used to represent the history, this way people understand what those are. and right align it.
+
+nice, give a very light gray background to the white box as well
+
+make the current action area constant height, reduce the spacing between players
+
+s/Your Pocket Cards/Pocket Cards/
+
+the community cards are taking too much verticals space, maybe we can put pocket cards in one row and community cards on the next row. and slightly reduce the padding inside each card.
+
+for the scoring screen, let's display it this way
++--------------------------------+
+| Player |       Hand Type       |
++--------------------------------+
+| Pocket Cards | Community Cards |
++--------------------------------+
+| Guessed: X    | Actual:  Y     |
++--------------------------------+
+
+hide the action area during scoring (it always shows "no chip" anyway)
+
+remove the "Pocket Cards", "Community Cards" text inside the scoreboard. And no need to layout the cards like a table -- just distribute the 2+5 cards somewhat evenly in a horizontal manner.
+
+bring back the bidding history, players need to see it. we just need to hide the action area.
+
+reduce the margin above "team victory / team defeat"
+
+add a little spacing between pocket and community cards in the scoring area
+
+still has a build issue
+
+but we haven't removed the "no chip" action space -- it should not be displayed during scoring since no action can be taken
+
+on desktop we can still show it (since it doesn't take up much space), but we need to hide it on mobile
+
+the "guessed / actual" text is a bit too to the right
+
+nono, this is margin *below* victory/defeat, the original value is good. I suspect the margin *above* victory/defeat is coming from the padding inside the parent element.
+
+========

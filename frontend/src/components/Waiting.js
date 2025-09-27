@@ -45,9 +45,14 @@ function Waiting() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '2rem'
+        marginBottom: window.innerWidth <= 768 ? '0.5rem' : '2rem',
+        padding: window.innerWidth <= 768 ? '0.25rem 0' : '0'
       }}>
-        <h1>Room: {roomName}</h1>
+        <h1 style={{
+          fontSize: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+          margin: '0',
+          fontWeight: 'bold'
+        }}>Room: {roomName}</h1>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -64,8 +69,8 @@ function Waiting() {
         </div>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <strong>You are: {playerName}</strong>
+      <div style={{ marginBottom: window.innerWidth <= 768 ? '0.5rem' : '1rem' }}>
+        <strong style={{ fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem' }}>You are: {playerName}</strong>
       </div>
 
       {error && (
@@ -76,7 +81,10 @@ function Waiting() {
 
       {roomData ? (
         <div>
-          <h2>Players ({roomData.player_count}/6)</h2>
+          <h2 style={{
+            fontSize: window.innerWidth <= 768 ? '0.9rem' : '1.25rem',
+            margin: '0 0 0.5rem 0'
+          }}>Players ({roomData.player_count}/6)</h2>
           <ul style={{ 
             listStyle: 'none', 
             padding: 0,

@@ -25,34 +25,45 @@ export const chipColors = {
   }
 };
 
+// Mobile detection utility
+const isMobile = window.innerWidth <= 768;
+
 // Common styles
 export const commonStyles = {
   container: {
-    padding: '2rem',
+    padding: isMobile ? '1rem' : '2rem',
     maxWidth: '600px', 
     margin: '0 auto'
   },
   button: {
-    padding: '0.75rem 1.5rem',
-    fontSize: '1rem',
+    padding: isMobile ? '0.75rem 1rem' : '0.75rem 1.5rem',
+    fontSize: isMobile ? '0.9rem' : '1rem',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    minHeight: '44px', // Touch target size
+    minWidth: isMobile ? '100px' : 'auto'
   },
   smallButton: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
+    padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
+    fontSize: isMobile ? '0.8rem' : '0.9rem',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    minHeight: '44px', // Touch target size
+    minWidth: '80px'
   },
   input: {
     width: '100%',
-    padding: '0.5rem',
-    fontSize: '1rem',
-    marginBottom: '0.5rem'
+    padding: isMobile ? '0.75rem' : '0.5rem',
+    fontSize: isMobile ? '1rem' : '1rem', // Prevent zoom on mobile
+    marginBottom: '0.5rem',
+    minHeight: '44px', // Touch target size
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    boxSizing: 'border-box'
   },
   errorBox: {
     color: 'red',
@@ -65,6 +76,16 @@ export const commonStyles = {
     width: '10px',
     height: '10px',
     borderRadius: '50%'
+  },
+  // Mobile-specific spacing utilities
+  mobileButtonGroup: {
+    display: 'flex',
+    gap: isMobile ? '1rem' : '0.5rem',
+    flexWrap: 'wrap',
+    justifyContent: isMobile ? 'center' : 'flex-start'
+  },
+  mobileSection: {
+    marginBottom: isMobile ? '1.5rem' : '2rem'
   }
 };
 
