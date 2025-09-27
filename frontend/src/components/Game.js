@@ -462,7 +462,43 @@ function Game() {
                                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                                   textAlign: 'left'
                                 }}>
-                                  Guessed: #{redChip}
+                                  <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                                    {/* White chip */}
+                                    {roomData.poker_game.chip_history[player].white ? (
+                                      <Chip chipColor="white" size={20}>
+                                        {roomData.poker_game.chip_history[player].white}
+                                      </Chip>
+                                    ) : (
+                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
+                                    )}
+                                    
+                                    {/* Yellow chip */}
+                                    {roomData.poker_game.chip_history[player].yellow ? (
+                                      <Chip chipColor="yellow" size={20}>
+                                        {roomData.poker_game.chip_history[player].yellow}
+                                      </Chip>
+                                    ) : (
+                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
+                                    )}
+                                    
+                                    {/* Orange chip */}
+                                    {roomData.poker_game.chip_history[player].orange ? (
+                                      <Chip chipColor="orange" size={20}>
+                                        {roomData.poker_game.chip_history[player].orange}
+                                      </Chip>
+                                    ) : (
+                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
+                                    )}
+                                    
+                                    {/* Red chip */}
+                                    {roomData.poker_game.chip_history[player].red ? (
+                                      <Chip chipColor="red" size={20}>
+                                        {roomData.poker_game.chip_history[player].red}
+                                      </Chip>
+                                    ) : (
+                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
+                                    )}
+                                  </div>
                                 </td>
                                 <td style={{ 
                                   padding: '0.5rem', 
@@ -554,6 +590,7 @@ function Game() {
           )}
 
           {/* Bidding History - All Players and All Rounds */}
+          {roomData.poker_game.round !== 'scoring' && (
           <div style={{ 
             ...styles.section,
             backgroundColor: '#e7f3ff'
@@ -968,6 +1005,7 @@ function Game() {
             </div>
             )}
           </div>
+          )}
 
           {/* Scoring Actions */}
           {roomData.poker_game.round === 'scoring' && (

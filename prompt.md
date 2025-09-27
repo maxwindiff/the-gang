@@ -336,3 +336,11 @@ nono, this is margin *below* victory/defeat, the original value is good. I suspe
 delete "you are:" and "room state:" in the waiting page
 
 ========
+
+during scoring, replace 'guessed: X' with 4 small history chips, and hide the bidding history
+
+slightly increase the width of the page on mobile
+
+let's do 0.35rem
+
+========
