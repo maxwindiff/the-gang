@@ -69,9 +69,6 @@ function Waiting() {
         </div>
       </div>
 
-      <div style={{ marginBottom: window.innerWidth <= 768 ? '0.5rem' : '1rem' }}>
-        <strong style={{ fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem' }}>You are: {playerName}</strong>
-      </div>
 
       {error && (
         <div style={commonStyles.errorBox}>
@@ -103,9 +100,6 @@ function Waiting() {
             ))}
           </ul>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Room State:</strong> {roomData.state}
-          </div>
 
           {roomData.state === 'waiting' && (
             <div>

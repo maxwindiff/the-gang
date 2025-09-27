@@ -332,3 +332,7 @@ the "guessed / actual" text is a bit too to the right
 nono, this is margin *below* victory/defeat, the original value is good. I suspect the margin *above* victory/defeat is coming from the padding inside the parent element.
 
 ========
+
+delete "you are:" and "room state:" in the waiting page
+
+========
