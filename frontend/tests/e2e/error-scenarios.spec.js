@@ -101,8 +101,8 @@ test.describe('Error Scenarios and Edge Cases', () => {
     await page3.goto('/'); // Simulate leaving
 
     // Remaining players should still be able to continue
-    await expect(page.locator('text=Game in Progress')).toBeVisible();
-    await expect(page2.locator('text=Game in Progress')).toBeVisible();
+    await expect(page.locator('h1:has-text("Room:")')).toBeVisible();
+    await expect(page2.locator('h1:has-text("Room:")')).toBeVisible();
 
     // Cleanup
     await page2.close();

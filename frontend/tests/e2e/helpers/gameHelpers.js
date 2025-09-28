@@ -49,7 +49,7 @@ async function startGame(page) {
  */
 async function waitForGameStart(page) {
   await page.waitForURL(/\/game\/.+\/.+/, { timeout: 15000 });
-  await page.waitForSelector('text=Game in Progress', { timeout: 10000 });
+  await page.waitForSelector('h1:has-text("Room:")', { timeout: 10000 });
 }
 
 /**

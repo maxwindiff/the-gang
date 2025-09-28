@@ -57,6 +57,174 @@ function Game() {
 
   // Responsive styles with mobile optimizations
   const isMobile = window.innerWidth <= 768;
+
+  // Card rendering helper
+  const renderCard = (card, index, isHighlighted = false) => {
+    const borderColor = isHighlighted ? '#ffc107' : '#ccc';
+    const borderWidth = isHighlighted ? '2px' : '1px';
+    
+    return (
+      <div key={index} style={{
+        padding: isMobile ? '0.3rem' : '0.5rem',
+        backgroundColor: 'white',
+        border: `${borderWidth} solid ${borderColor}`,
+        borderRadius: '4px',
+        minWidth: isMobile ? '35px' : '40px',
+        textAlign: 'center',
+        fontSize: isMobile ? '0.8rem' : '1rem'
+      }}>
+        {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
+      </div>
+    );
+  };
+
+  // Pocket cards section
+  const renderPocketCards = () => {
+    if (!roomData.poker_game.pocket_cards || roomData.poker_game.pocket_cards.length === 0) {
+      return null;
+    }
+
+    return (
+      <div style={{ 
+        padding: isMobile ? '0.5rem' : '0.75rem',
+        backgroundColor: '#fff3cd',
+        borderRadius: '8px',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Pocket Cards</h3>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+          {roomData.poker_game.pocket_cards.map((card, index) => renderCard(card, index, true))}
+        </div>
+      </div>
+    );
+  };
+
+  // Community cards section
+  const renderCommunityCards = () => {
+    if (roomData.poker_game.community_cards.length === 0) {
+      return null;
+    }
+
+    return (
+      <div style={{ 
+        padding: isMobile ? '0.5rem' : '0.75rem',
+        backgroundColor: '#e8f5e8',
+        borderRadius: '8px',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Community Cards</h3>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {roomData.poker_game.community_cards.map((card, index) => renderCard(card, index, false))}
+        </div>
+      </div>
+    );
+  };
+
+  // Cards section container
+  const renderCardsSection = () => {
+    const hasPocketCards = roomData.poker_game.pocket_cards?.length > 0;
+    const hasCommunityCards = roomData.poker_game.community_cards.length > 0;
+    
+    if (!hasPocketCards && !hasCommunityCards) {
+      return null;
+    }
+
+    return (
+      <div style={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        gap: isMobile ? '0.5rem' : '1rem',
+        marginBottom: isMobile ? '1rem' : '1.5rem'
+      }}>
+        {renderPocketCards()}
+        {renderCommunityCards()}
+      </div>
+    );
+  };
+
+  // Chip history display helper
+  const renderChipHistory = (player) => {
+    const chipTypes = ['white', 'yellow', 'orange', 'red'];
+    
+    return (
+      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+        {chipTypes.map(chipColor => {
+          const chipNumber = roomData.poker_game.chip_history[player][chipColor];
+          
+          if (chipNumber) {
+            return (
+              <Chip key={chipColor} chipColor={chipColor} size={20}>
+                {chipNumber}
+              </Chip>
+            );
+          } else {
+            return (
+              <div key={chipColor} style={{ 
+                width: '20px', 
+                height: '20px', 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: '50%', 
+                border: '1px solid #dee2e6' 
+              }}></div>
+            );
+          }
+        })}
+      </div>
+    );
+  };
+
+  // Header section
+  const renderHeader = () => {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: isMobile ? '0.25rem' : '0.5rem',
+        padding: isMobile ? '0.25rem 0' : '0'
+      }}>
+        <h1 style={{
+          fontSize: isMobile ? '1rem' : '1.5rem',
+          margin: '0',
+          fontWeight: 'bold'
+        }}>Room: {roomName}</h1>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: isMobile ? '0.5rem' : '1rem',
+          fontSize: isMobile ? '0.75rem' : '0.9rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div 
+              style={{ 
+                width: '10px', 
+                height: '10px', 
+                borderRadius: '50%', 
+                backgroundColor: statusColors[connectionStatus] || statusColors.default 
+              }}
+            />
+            {connectionStatus}
+          </div>
+          {roomData?.poker_game?.round !== 'scoring' && (
+            <button
+              onClick={handleEndGame}
+              style={{
+                padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.8rem'
+              }}
+            >
+              End Game
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
   
   const styles = {
     section: { 
@@ -178,53 +346,7 @@ function Game() {
 
   return (
     <div style={{ padding: isMobile ? '0.5rem' : '1rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: isMobile ? '0.25rem' : '0.5rem',
-        padding: isMobile ? '0.25rem 0' : '0'
-      }}>
-        <h1 style={{
-          fontSize: isMobile ? '1rem' : '1.5rem',
-          margin: '0',
-          fontWeight: 'bold'
-        }}>Room: {roomName}</h1>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: isMobile ? '0.5rem' : '1rem',
-          fontSize: isMobile ? '0.75rem' : '0.9rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div 
-              style={{ 
-                width: '10px', 
-                height: '10px', 
-                borderRadius: '50%', 
-                backgroundColor: statusColors[connectionStatus] || statusColors.default 
-              }}
-            />
-            {connectionStatus}
-          </div>
-          {roomData?.poker_game?.round !== 'scoring' && (
-            <button
-              onClick={handleEndGame}
-              style={{
-                padding: isMobile ? '0.25rem 0.5rem' : '0.5rem 1rem',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
-            >
-              End Game
-            </button>
-          )}
-        </div>
-      </div>
+      {renderHeader()}
 
 
       {error && (
@@ -242,69 +364,8 @@ function Game() {
       {roomData && roomData.poker_game ? (
         <div>
 
-          {/* Cards Section - Pocket Cards (left) and Community Cards (right) */}
-          {(roomData.poker_game.pocket_cards?.length > 0 || roomData.poker_game.community_cards.length > 0) && (
-            <div style={{ 
-              display: 'flex',
-              flexDirection: 'column',
-              gap: isMobile ? '0.5rem' : '1rem',
-              marginBottom: isMobile ? '1rem' : '1.5rem'
-            }}>
-              {/* Pocket Cards */}
-              {roomData.poker_game.pocket_cards && roomData.poker_game.pocket_cards.length > 0 && (
-                <div style={{ 
-                  padding: isMobile ? '0.5rem' : '0.75rem',
-                  backgroundColor: '#fff3cd',
-                  borderRadius: '8px',
-                  textAlign: 'center'
-                }}>
-                  <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Pocket Cards</h3>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                    {roomData.poker_game.pocket_cards.map((card, index) => (
-                      <div key={index} style={{
-                        padding: isMobile ? '0.3rem' : '0.5rem',
-                        backgroundColor: 'white',
-                        border: '2px solid #ffc107',
-                        borderRadius: '4px',
-                        minWidth: isMobile ? '35px' : '40px',
-                        textAlign: 'center',
-                        fontSize: isMobile ? '0.8rem' : '1rem'
-                      }}>
-                        {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Community Cards */}
-              {roomData.poker_game.community_cards.length > 0 && (
-                <div style={{ 
-                  padding: isMobile ? '0.5rem' : '0.75rem',
-                  backgroundColor: '#e8f5e8',
-                  borderRadius: '8px',
-                  textAlign: 'center'
-                }}>
-                  <h3 style={{ fontSize: isMobile ? '0.9rem' : '1.1rem', margin: '0 0 0.5rem 0' }}>Community Cards</h3>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {roomData.poker_game.community_cards.map((card, index) => (
-                      <div key={index} style={{
-                        padding: isMobile ? '0.3rem' : '0.5rem',
-                        backgroundColor: 'white',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        minWidth: isMobile ? '35px' : '40px',
-                        textAlign: 'center',
-                        fontSize: isMobile ? '0.8rem' : '1rem'
-                      }}>
-                        {card.rank_str}{card.suit === 'hearts' ? '♥️' : card.suit === 'diamonds' ? '♦️' : card.suit === 'clubs' ? '♣️' : '♠️'}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Cards Section */}
+          {renderCardsSection()}
 
           {/* Available Chips / Scoring Results */}
           {roomData.poker_game.round === 'scoring' && roomData.poker_game.scoring ? (
@@ -462,43 +523,7 @@ function Game() {
                                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                                   textAlign: 'left'
                                 }}>
-                                  <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                                    {/* White chip */}
-                                    {roomData.poker_game.chip_history[player].white ? (
-                                      <Chip chipColor="white" size={20}>
-                                        {roomData.poker_game.chip_history[player].white}
-                                      </Chip>
-                                    ) : (
-                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
-                                    )}
-                                    
-                                    {/* Yellow chip */}
-                                    {roomData.poker_game.chip_history[player].yellow ? (
-                                      <Chip chipColor="yellow" size={20}>
-                                        {roomData.poker_game.chip_history[player].yellow}
-                                      </Chip>
-                                    ) : (
-                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
-                                    )}
-                                    
-                                    {/* Orange chip */}
-                                    {roomData.poker_game.chip_history[player].orange ? (
-                                      <Chip chipColor="orange" size={20}>
-                                        {roomData.poker_game.chip_history[player].orange}
-                                      </Chip>
-                                    ) : (
-                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
-                                    )}
-                                    
-                                    {/* Red chip */}
-                                    {roomData.poker_game.chip_history[player].red ? (
-                                      <Chip chipColor="red" size={20}>
-                                        {roomData.poker_game.chip_history[player].red}
-                                      </Chip>
-                                    ) : (
-                                      <div style={{ width: '20px', height: '20px', backgroundColor: '#f8f9fa', borderRadius: '50%', border: '1px solid #dee2e6' }}></div>
-                                    )}
-                                  </div>
+                                  {renderChipHistory(player)}
                                 </td>
                                 <td style={{ 
                                   padding: '0.5rem', 
