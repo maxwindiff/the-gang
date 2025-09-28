@@ -343,4 +343,10 @@ slightly increase the width of the page on mobile
 
 let's do 0.35rem
 
+refactor large views into separate functions, also look for other refactoring opportunities in the ui, don't change any behavior
+
+run all ui tests
+
+re-run and fix all tests
+
 ========
