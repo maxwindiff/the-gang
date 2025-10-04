@@ -394,15 +394,51 @@ function Game() {
                   redChip: roomData.poker_game.scoring.red_chip_assignments[player],
                   allCards: roomData.poker_game.scoring.player_all_cards[player]
                 }));
-                
+
                 // Sort by red chip number
                 playersWithData.sort((a, b) => a.redChip - b.redChip);
-                
+
                 // Helper function to check if a card is used in the best hand
                 const isCardUsed = (card, bestHandCards) => {
-                  return bestHandCards.some(handCard => 
+                  return bestHandCards.some(handCard =>
                     handCard.rank === card.rank && handCard.suit === card.suit
                   );
+                };
+
+                // Format hand display with key cards
+                const formatHandDisplay = (hand) => {
+                  const rankNames = {2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A'};
+                  const baseDisplay = hand.rank_display;
+
+                  if (!hand.tie_breakers || hand.tie_breakers.length === 0) {
+                    return baseDisplay;
+                  }
+
+                  const rank = hand.rank;
+
+                  if (rank === 'HIGH_CARD') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]})`;
+                  } else if (rank === 'ONE_PAIR') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]})`;
+                  } else if (rank === 'TWO_PAIR') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]}, ${rankNames[hand.tie_breakers[1]]})`;
+                  } else if (rank === 'THREE_OF_A_KIND') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]})`;
+                  } else if (rank === 'STRAIGHT') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]} high)`;
+                  } else if (rank === 'FLUSH') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]} high)`;
+                  } else if (rank === 'FULL_HOUSE') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]} over ${rankNames[hand.tie_breakers[1]]})`;
+                  } else if (rank === 'FOUR_OF_A_KIND') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]})`;
+                  } else if (rank === 'STRAIGHT_FLUSH') {
+                    return `${baseDisplay} (${rankNames[hand.tie_breakers[0]]} high)`;
+                  } else if (rank === 'ROYAL_FLUSH') {
+                    return baseDisplay;
+                  }
+
+                  return baseDisplay;
                 };
                 
                 return (
@@ -446,14 +482,14 @@ function Game() {
                                     {player}{player === playerName && ' (You)'}
                                   </div>
                                 </td>
-                                <td style={{ 
-                                  padding: '0.5rem', 
-                                  textAlign: 'center', 
+                                <td style={{
+                                  padding: '0.5rem',
+                                  textAlign: 'center',
                                   borderBottom: '1px solid #dee2e6',
                                   fontWeight: 'bold',
                                   fontSize: isMobile ? '0.9rem' : '1rem'
                                 }}>
-                                  {hand.rank_display}
+                                  {formatHandDisplay(hand)}
                                 </td>
                               </tr>
                               
