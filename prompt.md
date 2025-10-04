@@ -350,3 +350,29 @@ run all ui tests
 re-run and fix all tests
 
 ========
+
+the chips in the public area should not move when other chips are taken, leave a faint outline
+
+reduce the height of the take/return buttons, ensure the player rows heights are constant
+
+make the take/return slightly taller, same height as the chips
+
+this is good, but the player rows are a bit too high
+
+remove the "white/yellow/orange/red" text from column headers
+
+in the scoring screen, indicate the key cards used to construct the hand category. For example "Two Pair (10, 7)", "High Card (K)"
+
+in the scoring screen, use red/green borders around the history scoring chips to indicate whether the order was correct during that round
+
+actually I mean use both red/green text and border color
+
+the relative ranking for the pocket cards seems wrong
+
+I got the wrong results from a game hosted on a different server. anyway, the logic for computing the per-round results should be:
+1. for round 1, the ranking should be to first sort by pairs, then sort by high cards, using kicker as tiebreaker
+2. for round 2, use the 2 pocket cards and 3 community cards to form the hand
+3. for round 3, score by the best 5-card pocket hand among the 2 pocket and 4 community cards
+
+========
+
