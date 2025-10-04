@@ -24,16 +24,20 @@ function Game() {
   });
 
   // Reusable chip component with mobile optimization
-  const Chip = ({ chipColor, size, children, onClick, ...props }) => {
+  const Chip = ({ chipColor, size, children, onClick, textColor, borderColor, ...props }) => {
     // Default mobile-responsive size
     const defaultSize = isMobile ? 40 : 30;
     const chipSize = size || defaultSize;
-    
+
     const style = {
       ...getChipStyle(chipColor, chipSize),
+      // Override text color if provided
+      ...(textColor && { color: textColor }),
+      // Override border color if provided
+      ...(borderColor && { border: `2px solid ${borderColor}` }),
       // Ensure minimum touch target on mobile
-      ...(isMobile && onClick && { 
-        minWidth: '44px', 
+      ...(isMobile && onClick && {
+        minWidth: '44px',
         minHeight: '44px',
         display: 'flex',
         alignItems: 'center',
@@ -143,28 +147,49 @@ function Game() {
   };
 
   // Chip history display helper
-  const renderChipHistory = (player) => {
+  const renderChipHistory = (player, actualRank = null, allPlayersData = null) => {
     const chipTypes = ['white', 'yellow', 'orange', 'red'];
-    
+
     return (
       <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
         {chipTypes.map(chipColor => {
           const chipNumber = roomData.poker_game.chip_history[player][chipColor];
-          
+
           if (chipNumber) {
+            let statusColor = null;
+
+            if (actualRank !== null && allPlayersData !== null) {
+              const playersAtThisRound = allPlayersData.map(p => {
+                const chipAtRound = roomData.poker_game.chip_history[p.player][chipColor];
+                return {
+                  player: p.player,
+                  chip: chipAtRound,
+                  actualRank: p.actualRank
+                };
+              }).filter(p => p.chip !== undefined);
+
+              const currentPlayerData = playersAtThisRound.find(p => p.player === player);
+              if (currentPlayerData) {
+                const expectedChip = currentPlayerData.actualRank;
+                const actualChip = currentPlayerData.chip;
+                const isCorrect = actualChip === expectedChip;
+                statusColor = isCorrect ? '#28a745' : '#dc3545';
+              }
+            }
+
             return (
-              <Chip key={chipColor} chipColor={chipColor} size={20}>
+              <Chip key={chipColor} chipColor={chipColor} size={20} textColor={statusColor} borderColor={statusColor}>
                 {chipNumber}
               </Chip>
             );
           } else {
             return (
-              <div key={chipColor} style={{ 
-                width: '20px', 
-                height: '20px', 
-                backgroundColor: '#f8f9fa', 
-                borderRadius: '50%', 
-                border: '1px solid #dee2e6' 
+              <div key={chipColor} style={{
+                width: '20px',
+                height: '20px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '50%',
+                border: '1px solid #dee2e6'
               }}></div>
             );
           }
@@ -553,14 +578,14 @@ function Game() {
                               
                               {/* Guessed vs Actual Row */}
                               <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                <td style={{ 
-                                  padding: '0.5rem', 
+                                <td style={{
+                                  padding: '0.5rem',
                                   borderBottom: player === playersWithData[playersWithData.length - 1].player ? 'none' : '2px solid #dee2e6',
                                   fontWeight: 'bold',
                                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                                   textAlign: 'left'
                                 }}>
-                                  {renderChipHistory(player)}
+                                  {renderChipHistory(player, actualRank, playersWithData)}
                                 </td>
                                 <td style={{ 
                                   padding: '0.5rem', 
