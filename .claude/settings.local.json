@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start)",
+      "Bash(python manage.py:*)",
+      "Bash(python3 manage.py runserver:*)",
+      "Bash(source:*)",
+      "Bash(venv/bin/python3 manage.py runserver:*)",
+      "Bash(./start_dev.sh:*)",
+      "Bash(./start_servers.sh)",
+      "Bash(rm:*)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)",
+      "Bash(lsof:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
