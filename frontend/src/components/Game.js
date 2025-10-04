@@ -243,13 +243,14 @@ function Game() {
       minHeight: '44px', // Touch target size
       minWidth: isMobile ? '100px' : 'auto'
     },
-    smallButton: { 
-      padding: isMobile ? '0.5rem 0.75rem' : '0.25rem 0.5rem', 
-      fontSize: isMobile ? '0.8rem' : '0.7rem', 
-      border: 'none', 
-      borderRadius: '4px', 
+    smallButton: {
+      padding: isMobile ? '0.5rem 0.75rem' : '0.25rem 0.5rem',
+      fontSize: isMobile ? '0.8rem' : '0.7rem',
+      border: 'none',
+      borderRadius: '4px',
       cursor: 'pointer',
-      minHeight: '44px', // Touch target size
+      minHeight: isMobile ? '44px' : '32px',
+      height: isMobile ? '44px' : '32px',
       minWidth: '60px'
     },
     mobileTable: {
@@ -748,12 +749,12 @@ function Game() {
                       
                       {/* Current chip and action on one row */}
                       {roomData.poker_game.round !== 'scoring' && (
-                      <div style={{ 
-                        marginTop: '0.25rem', 
-                        padding: '0.25rem', 
-                        backgroundColor: '#e9ecef', 
+                      <div style={{
+                        marginTop: '0.25rem',
+                        padding: '0.25rem',
+                        backgroundColor: '#e9ecef',
                         borderRadius: '4px',
-                        minHeight: '36px',
+                        height: '36px',
                         display: 'flex',
                         alignItems: 'center'
                       }}>
@@ -778,7 +779,7 @@ function Game() {
                                         border: 'none',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
-                                        minHeight: '28px'
+                                        height: '32px'
                                       }}
                                     >
                                       Take
@@ -794,7 +795,7 @@ function Game() {
                                         border: 'none',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
-                                        minHeight: '28px'
+                                        height: '32px'
                                       }}
                                     >
                                       Return
@@ -847,41 +848,41 @@ function Game() {
                     }}>
                       Player
                     </th>
-                    <th style={{ 
-                      padding: '0.75rem', 
-                      textAlign: 'center', 
+                    <th style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
                       borderBottom: '2px solid #dee2e6',
                       backgroundColor: '#f8f9fa',
                       fontWeight: 'bold'
                     }}>
-                      Pre-flop<br/><span style={{ fontSize: '0.8em', color: '#666' }}>White</span>
+                      Pre-flop
                     </th>
-                    <th style={{ 
-                      padding: '0.75rem', 
-                      textAlign: 'center', 
+                    <th style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
                       borderBottom: '2px solid #dee2e6',
                       backgroundColor: '#fff3cd',
                       fontWeight: 'bold'
                     }}>
-                      Flop<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Yellow</span>
+                      Flop
                     </th>
-                    <th style={{ 
-                      padding: '0.75rem', 
-                      textAlign: 'center', 
+                    <th style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
                       borderBottom: '2px solid #dee2e6',
                       backgroundColor: '#ffeaa7',
                       fontWeight: 'bold'
                     }}>
-                      Turn<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Orange</span>
+                      Turn
                     </th>
-                    <th style={{ 
-                      padding: '0.75rem', 
-                      textAlign: 'center', 
+                    <th style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
                       borderBottom: '2px solid #dee2e6',
                       backgroundColor: '#f8d7da',
                       fontWeight: 'bold'
                     }}>
-                      River<br/><span style={{ fontSize: '0.8em', color: '#666' }}>Red</span>
+                      River
                     </th>
                     <th style={{ 
                       padding: '0.75rem', 
@@ -915,20 +916,22 @@ function Game() {
                         backgroundColor: isCurrentPlayer ? '#e7f3ff' : (index % 2 === 0 ? 'white' : '#f9f9f9'),
                         border: isCurrentPlayer ? '2px solid #007bff' : 'none'
                       }}>
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           fontWeight: isCurrentPlayer ? 'bold' : 'normal',
-                          borderBottom: '1px solid #dee2e6'
+                          borderBottom: '1px solid #dee2e6',
+                          height: '48px'
                         }}>
                           {player} {isCurrentPlayer && '(You)'}
                         </td>
-                        
+
                         {/* Pre-flop (White) */}
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           textAlign: 'center',
                           borderBottom: '1px solid #dee2e6',
-                          backgroundColor: '#f8f9fa'
+                          backgroundColor: '#f8f9fa',
+                          height: '48px'
                         }}>
                           {playerHistory.white && shouldShowInHistory('white') ? (
                             <Chip chipColor="white">
@@ -938,13 +941,14 @@ function Game() {
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
                         </td>
-                        
+
                         {/* Flop (Yellow) */}
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           textAlign: 'center',
                           borderBottom: '1px solid #dee2e6',
-                          backgroundColor: '#fff3cd'
+                          backgroundColor: '#fff3cd',
+                          height: '48px'
                         }}>
                           {playerHistory.yellow && shouldShowInHistory('yellow') ? (
                             <Chip chipColor="yellow">
@@ -954,13 +958,14 @@ function Game() {
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
                         </td>
-                        
+
                         {/* Turn (Orange) */}
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           textAlign: 'center',
                           borderBottom: '1px solid #dee2e6',
-                          backgroundColor: '#ffeaa7'
+                          backgroundColor: '#ffeaa7',
+                          height: '48px'
                         }}>
                           {playerHistory.orange && shouldShowInHistory('orange') ? (
                             <Chip chipColor="orange">
@@ -970,13 +975,14 @@ function Game() {
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
                         </td>
-                        
+
                         {/* River (Red) */}
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           textAlign: 'center',
                           borderBottom: '1px solid #dee2e6',
-                          backgroundColor: '#f8d7da'
+                          backgroundColor: '#f8d7da',
+                          height: '48px'
                         }}>
                           {playerHistory.red && shouldShowInHistory('red') ? (
                             <Chip chipColor="red">
@@ -986,12 +992,13 @@ function Game() {
                             <span style={{ color: '#ccc', fontStyle: 'italic' }}>-</span>
                           )}
                         </td>
-                        
+
                         {/* Current Action */}
-                        <td style={{ 
-                          padding: '0.75rem', 
+                        <td style={{
+                          padding: '0.5rem',
                           textAlign: 'center',
-                          borderBottom: '1px solid #dee2e6'
+                          borderBottom: '1px solid #dee2e6',
+                          height: '48px'
                         }}>
                           <div>
                             {currentChip ? (
