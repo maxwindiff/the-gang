@@ -546,52 +546,73 @@ function Game() {
               })()}
             </div>
           ) : (
-            <div style={{ 
+            <div style={{
               ...styles.section,
               backgroundColor: '#f8f9fa'
             }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                {roomData.poker_game.available_chips.length > 0 ? (
-                  roomData.poker_game.available_chips.map((chipNumber) => (
-                    <Chip
-                      key={chipNumber}
-                      chipColor={roomData.poker_game.current_chip_color}
-                      size={40}
-                      onClick={() => handleTakeChipFromPublic(chipNumber)}
-                    >
-                      {chipNumber}
-                    </Chip>
-                  ))
-                ) : (
-                  <div style={{ 
-                    textAlign: 'center',
-                    color: '#6c757d',
-                    fontStyle: 'italic',
-                    padding: '0.75rem',
-                    width: '100%'
-                  }}>
-                    All chips have been taken
-                    {roomData.poker_game.can_advance && (
-                      <div style={{ marginTop: '1rem' }}>
-                        <button
-                          onClick={handleAdvanceRound}
+                {(() => {
+                  const totalPlayers = roomData.players.length;
+                  const allChipNumbers = Array.from({ length: totalPlayers }, (_, i) => i + 1);
+                  const availableChips = roomData.poker_game.available_chips;
+
+                  return allChipNumbers.map((chipNumber) => {
+                    const isAvailable = availableChips.includes(chipNumber);
+
+                    if (isAvailable) {
+                      return (
+                        <Chip
+                          key={chipNumber}
+                          chipColor={roomData.poker_game.current_chip_color}
+                          size={40}
+                          onClick={() => handleTakeChipFromPublic(chipNumber)}
+                        >
+                          {chipNumber}
+                        </Chip>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={chipNumber}
                           style={{
-                            padding: '0.75rem 1.5rem',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '1rem'
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'transparent',
+                            border: `2px dashed ${chipColors.borders[roomData.poker_game.current_chip_color] || chipColors.borders.white}`,
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            opacity: 0.3,
+                            color: '#999',
+                            fontSize: '0.8rem'
                           }}
                         >
-                          {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                          {chipNumber}
+                        </div>
+                      );
+                    }
+                  });
+                })()}
               </div>
+              {roomData.poker_game.available_chips.length === 0 && roomData.poker_game.can_advance && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <button
+                    onClick={handleAdvanceRound}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    {roomData.poker_game.round === 'river' ? 'Go to Scoring' : 'Next Round'}
+                  </button>
+                </div>
+              )}
               {/* Dev helper link */}
               {process.env.NODE_ENV === 'development' && roomData.poker_game.available_chips.length > 0 && (
                 <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>

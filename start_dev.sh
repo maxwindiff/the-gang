@@ -14,7 +14,7 @@ trap cleanup SIGINT
 
 # Start Django server with ASGI support
 echo "Starting Django backend server with ASGI..."
-source venv/bin/activate && daphne -b 0.0.0.0 -p 8000 thegang.asgi:application &
+source .venv/bin/activate && daphne -b 0.0.0.0 -p 8000 thegang.asgi:application &
 DJANGO_PID=$!
 
 # Wait a moment for Django to start
