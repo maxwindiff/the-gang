@@ -147,7 +147,7 @@ function Game() {
   };
 
   // Chip history display helper
-  const renderChipHistory = (player, actualRank = null, allPlayersData = null) => {
+  const renderChipHistory = (player, roundValidations = null) => {
     const chipTypes = ['white', 'yellow', 'orange', 'red'];
 
     return (
@@ -158,23 +158,9 @@ function Game() {
           if (chipNumber) {
             let statusColor = null;
 
-            if (actualRank !== null && allPlayersData !== null) {
-              const playersAtThisRound = allPlayersData.map(p => {
-                const chipAtRound = roomData.poker_game.chip_history[p.player][chipColor];
-                return {
-                  player: p.player,
-                  chip: chipAtRound,
-                  actualRank: p.actualRank
-                };
-              }).filter(p => p.chip !== undefined);
-
-              const currentPlayerData = playersAtThisRound.find(p => p.player === player);
-              if (currentPlayerData) {
-                const expectedChip = currentPlayerData.actualRank;
-                const actualChip = currentPlayerData.chip;
-                const isCorrect = actualChip === expectedChip;
-                statusColor = isCorrect ? '#28a745' : '#dc3545';
-              }
+            if (roundValidations && roundValidations[chipColor] && roundValidations[chipColor][player]) {
+              const isCorrect = roundValidations[chipColor][player].correct;
+              statusColor = isCorrect ? '#28a745' : '#dc3545';
             }
 
             return (
@@ -585,7 +571,7 @@ function Game() {
                                   fontSize: isMobile ? '0.8rem' : '0.9rem',
                                   textAlign: 'left'
                                 }}>
-                                  {renderChipHistory(player, actualRank, playersWithData)}
+                                  {renderChipHistory(player, roomData.poker_game.scoring.round_validations)}
                                 </td>
                                 <td style={{ 
                                   padding: '0.5rem', 

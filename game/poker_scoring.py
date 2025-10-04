@@ -138,19 +138,84 @@ def find_best_hand(cards):
     """
     if len(cards) < 5:
         raise ValueError("Need at least 5 cards to make a poker hand")
-    
+
     if len(cards) == 5:
         return PokerHand(cards)
-    
+
     best_hand = None
-    
+
     # Generate all 5-card combinations
     for combo in itertools.combinations(cards, 5):
         hand = PokerHand(list(combo))
         if best_hand is None or hand > best_hand:
             best_hand = hand
-    
+
     return best_hand
+
+def rank_pocket_cards_only(pocket_cards):
+    """
+    Rank two pocket cards by pairs first, then high card with kicker.
+    Returns a tuple (rank_value, primary, kicker) for comparison.
+    """
+    ranks = sorted([card.rank for card in pocket_cards], reverse=True)
+
+    if ranks[0] == ranks[1]:
+        return (2, ranks[0], 0)
+    else:
+        return (1, ranks[0], ranks[1])
+
+def validate_round_chips(pocket_cards_dict, community_cards, chip_assignments, round_name):
+    """
+    Validate chip assignments for a specific round.
+
+    Args:
+        pocket_cards_dict: Dict mapping player names to their pocket cards
+        community_cards: List of community cards available this round
+        chip_assignments: Dict mapping player names to their chip numbers
+        round_name: 'preflop', 'flop', 'turn', or 'river'
+
+    Returns:
+        Dict with validation results for each player
+    """
+    results = {}
+
+    if round_name == 'preflop':
+        player_rankings = {}
+        for player, pocket_cards in pocket_cards_dict.items():
+            player_rankings[player] = rank_pocket_cards_only(pocket_cards)
+
+        ranked_players = sorted(player_rankings.items(), key=lambda x: x[1])
+
+    elif round_name in ['flop', 'turn']:
+        num_community = 3 if round_name == 'flop' else 4
+        if len(community_cards) < num_community:
+            return {}
+
+        cards_to_use = community_cards[:num_community]
+        player_hands = {}
+
+        for player, pocket_cards in pocket_cards_dict.items():
+            all_cards = pocket_cards + cards_to_use
+            if len(all_cards) == 5:
+                player_hands[player] = PokerHand(all_cards)
+            else:
+                player_hands[player] = find_best_hand(all_cards)
+
+        ranked_players = sorted(player_hands.items(), key=lambda x: x[1])
+
+    else:
+        return {}
+
+    for i, (player, _) in enumerate(ranked_players):
+        expected_chip = i + 1
+        actual_chip = chip_assignments.get(player)
+        results[player] = {
+            'expected': expected_chip,
+            'actual': actual_chip,
+            'correct': expected_chip == actual_chip
+        }
+
+    return results
 
 def rank_players_by_hands(player_hands: Dict[str, PokerHand]) -> List[Tuple[str, PokerHand]]:
     """

@@ -2,7 +2,7 @@ import random
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 import logging
-from .poker_scoring import find_best_hand, check_cooperative_win, format_hand_for_display
+from .poker_scoring import find_best_hand, check_cooperative_win, format_hand_for_display, validate_round_chips
 
 logger = logging.getLogger(__name__)
 
@@ -286,7 +286,25 @@ class PokerGame:
         
         # Check cooperative win condition
         win_status, ranked_players, chip_assignments = check_cooperative_win(player_hands, red_chips)
-        
+
+        # Validate chip assignments for each round
+        round_validations = {}
+
+        # Preflop (white chips)
+        white_chips = {p: self.player_chips[p][ChipColor.WHITE] for p in self.players if self.player_chips[p][ChipColor.WHITE] is not None}
+        if white_chips:
+            round_validations['white'] = validate_round_chips(self.pocket_cards, self.community_cards, white_chips, 'preflop')
+
+        # Flop (yellow chips)
+        yellow_chips = {p: self.player_chips[p][ChipColor.YELLOW] for p in self.players if self.player_chips[p][ChipColor.YELLOW] is not None}
+        if yellow_chips and len(self.community_cards) >= 3:
+            round_validations['yellow'] = validate_round_chips(self.pocket_cards, self.community_cards, yellow_chips, 'flop')
+
+        # Turn (orange chips)
+        orange_chips = {p: self.player_chips[p][ChipColor.ORANGE] for p in self.players if self.player_chips[p][ChipColor.ORANGE] is not None}
+        if orange_chips and len(self.community_cards) >= 4:
+            round_validations['orange'] = validate_round_chips(self.pocket_cards, self.community_cards, orange_chips, 'turn')
+
         # Store scoring results with all cards for each player
         player_all_cards = {}
         for player in self.players:
@@ -297,13 +315,14 @@ class PokerGame:
                 'all_cards': [card.to_dict() for card in all_cards],
                 'best_hand': format_hand_for_display(player_hands[player])
             }
-        
+
         self.scoring_results = {
             'win': win_status,
             'player_hands': {player: format_hand_for_display(hand) for player, hand in player_hands.items()},
             'player_all_cards': player_all_cards,
             'ranked_players': [(player, format_hand_for_display(hand)) for player, hand in ranked_players],
-            'red_chip_assignments': chip_assignments
+            'red_chip_assignments': chip_assignments,
+            'round_validations': round_validations
         }
         
         logger.info(f"Scoring complete: {'WIN' if win_status else 'LOSS'}")
